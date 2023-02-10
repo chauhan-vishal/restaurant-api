@@ -10,7 +10,8 @@ app.listen(port, () => { console.log(`App is listening on ${port}`) })
 
 const database = require("./database")
 const Cuisine = require("./schema/cuisine")
-const Category = require("./schema/category")
+const Category = require("./schema/category");
+const category = require("./schema/category");
 
 app.get("/", (req, res) => {
     res.send("Welcome !")
@@ -55,7 +56,7 @@ app.post("/api/category/new", function (req, res) {
                 cuisineId: cuisineId,
                 status: req.body.status || "inactive",
             })
-        
+
             console.log("Category : ", category)
         
             category.save((err, category) => {
@@ -63,5 +64,12 @@ app.post("/api/category/new", function (req, res) {
                 else res.send({ sucess: true, document: category, msg: "Success !" })
             })
         }
+    })
+})
+
+app.get("/api/category", (req, res) => {
+    let category = Category.find({}, (err, category) => {
+        if (err) return res.status(202).send("Error Occured !")
+        else return res.send(category)
     })
 })
