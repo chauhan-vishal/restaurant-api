@@ -9,12 +9,22 @@ const port = process.env.PORT || 2503
 app.listen(port, () => { console.log(`App is listening on ${port}`) })
 
 const database = require("./database")
-const category = require("./schema/category")
 const Cuisine = require("./schema/cuisine")
-
+const Category = require("./schema/category")
 
 app.get("/", (req, res) => {
     res.send("Welcome !")
+})
+
+
+// Cuisine
+// ==================================================================================================================================
+
+app.get("/api/cuisine", (req, res) => {
+    let cuisines = Cuisine.find({}, (err, cuisines) => {
+        if (err) return res.status(202).send("Error Occured !")
+        else return res.send(cuisines)
+    })
 })
 
 app.post("/api/cuisine/new", (req, res) => {
@@ -24,37 +34,34 @@ app.post("/api/cuisine/new", (req, res) => {
         status: req.body.status || "inactive",
     })
 
-    cuisine.save((err, cuisine)=>{
-        if(err) return res.status(202).send({sucess: false, msg: "Error in creation!", document : null})
-        else return res.send({sucess: true, document: cuisine, msg: "Success !"})
+    cuisine.save((err, cuisine) => {
+        if (err) return res.status(202).send({ sucess: false, msg: "Error in creation!", document: null })
+        else return res.send({ sucess: true, document: cuisine, msg: "Success !" })
     })
 })
 
-app.get("/api/cuisine/new", (req, res)=>{
-    let cuisines = Cuisine.find({}, (err, cuisines)=>{
-        if(err) return res.status(202).send("Error Occured !")
-        else return res.send(cuisines)
+// Category
+// ==================================================================================================================================
+app.post("/api/category/new", function (req, res) {
+    let cuisineId = ""
+    Cuisine.find({ name: req.body.cuisineName }, (err, cuisine) => {
+        if (err) return res.status(202).send("Error Occured !")
+        else {
+            cuisineId = cuisine[0]._id
+
+            let category = new Category({
+                name: req.body.name,
+                desc: req.body.desc,
+                cuisineId: cuisineId,
+                status: req.body.status || "inactive",
+            })
+        
+            console.log("Category : ", category)
+        
+            category.save((err, category) => {
+                if (err) return res.status(202).send({ sucess: false, msg: "Error in creation!", document: null })
+                else res.send({ sucess: true, document: category, msg: "Success !" })
+            })
+        }
     })
-})
-
-app.post("/api/categroy/new", function(req, res){
-    cuisineId = ""
-    Cuisine.find({name : req.body.cuisineName}, (err, cuisine)=>{
-       if(err) 
-       {
-        return res.send("Cuisine Not Found")
-       }
-       else
-       {
-        cuisineId = cuisine._id 
-       }
-    })
-
-    let categroy = new category({
-        name : req.body.name,
-        desc : req.body.desc,
-        cuisineId : cuisineId,
-        status: req.body.status || "inactive",
-   }) 
-
 })
