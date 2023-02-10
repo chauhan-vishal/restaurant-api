@@ -30,7 +30,7 @@ app.post("/api/cuisine/new", (req, res) => {
     })
 })
 
-app.get("/api/cuisine", (req, res)=>{
+app.get("/api/cuisine/new", (req, res)=>{
     let cuisines = Cuisine.find({}, (err, cuisines)=>{
         if(err) return res.status(202).send("Error Occured !")
         else return res.send(cuisines)
