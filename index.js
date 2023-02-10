@@ -41,6 +41,23 @@ app.post("/api/cuisine/new", (req, res) => {
     })
 })
 
+app.get("/api/cuisine/delete/:name", (req, res) => {
+    let cuisineName = req.params.name
+    Cuisine.deleteOne({ name: cuisineName }, (err, cuisine) => {
+        if (err) return res.status(202).send({ sucess: false, msg: "Error in Deletion!", document: null })
+        else return res.send({ sucess: true, msg: "Document deleted !", document: cuisine })
+    })
+})
+
+app.post("/api/cuisine/update/:name", (req, res) => {
+    let cuisineName = req.params.name;
+
+    Cuisine.findOne({ name: cuisineName }, (err, cuisine) => {
+        if(err) return res.status(202).send({ sucess: false, msg: "Error in Deletion!", document: null })
+        else return res.send({ sucess: true, msg: "Update Success!", document: cuisine })
+    })
+})
+
 // Category
 // ==================================================================================================================================
 app.post("/api/category/new", function (req, res) {
@@ -58,7 +75,7 @@ app.post("/api/category/new", function (req, res) {
             })
 
             console.log("Category : ", category)
-        
+
             category.save((err, category) => {
                 if (err) return res.status(202).send({ sucess: false, msg: "Error in creation!", document: null })
                 else res.send({ sucess: true, document: category, msg: "Success !" })
