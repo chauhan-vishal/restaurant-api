@@ -10,4 +10,4 @@ const cuisineSchema = mongoose.Schema({
 
 const Cuisine = mongoose.model("Cuisine", cuisineSchema)
 
-module.exports.Cuisine = Cuisine
+module.exports = Cuisine
