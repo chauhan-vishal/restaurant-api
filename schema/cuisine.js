@@ -2,9 +2,11 @@ const mongoose = require("mongoose")
 
 const cuisineSchema = mongoose.Schema({
     name: { type: String, required: true },
-    desc : String,
-    status: { type: String, default: "false" }
-},{ timestamps: true })
+    description : String,
+    status: { type: String, default: "false" },
+    created_at: { default: new Date(), immutable: true },
+    updated_at: new Date()
+})
 
 const Cuisine = mongoose.model("Cuisine", cuisineSchema)
 

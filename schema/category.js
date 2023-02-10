@@ -6,8 +6,10 @@ const categroySchema = mongoose.Schema({
     description : String,
     cuisineId : Schema.Types.ObjectId,
     status: { type: String, default: "false" },
-    created_at: { default: new Date(), immutable: true },
-    updated_at: new Date()
-})
+    },
+    {
+    timestamps: true
+    }
+);
 
 module.exports = mongoose.model('Category',categroySchema)   
