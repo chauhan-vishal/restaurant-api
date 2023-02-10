@@ -25,7 +25,7 @@ app.post("/api/cuisine/new", (req, res) => {
 
     cuisine.save((err, cuisine)=>{
         if(err) return res.status(202).send({sucess: false, msg: "Error in creation!", document : null})
-        else return res.send({sucess: false, document: cuisine, msg: "Success !"})
+        else return res.send({sucess: true, document: cuisine, msg: "Success !"})
     })
 })
 
