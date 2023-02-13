@@ -304,7 +304,7 @@ app.post("/api/sub-category/update/:name", (req, res) => {
 
 
 // item
-// ==============================================================================================================================================
+// =============================================================================================================================================
 
 const Item = require("./schema/item")
 
@@ -391,3 +391,99 @@ app.post("/api/item/update/:name", (req, res) => {
 
     })
 })
+
+
+// Customer 
+// =============================================================================================================================================
+
+const Customer = require("./schema/customer")
+
+app.get("/api/customer", (req, res) => {
+    Customer.find({}, (err, customers) => {
+        if (err) return res.status(202).send({ success: false, msg: "Error !", document: customers })
+
+        return res.send({ success: true, msg: "item Found !", document: customers })
+    })
+})
+
+app.post("/api/customer/new", (req,res)=>{
+    
+    let customer = new Customer({
+        name:{"First": req.body.first,"Last":req.body.last},
+        email : req.body.email,
+        contact:req.body.contact,
+        gender:req.body.gender,
+        dates:{"dob":req.body.dob,"aob":req.body.aob},
+        status: req.body.status || "inactive",
+    })
+
+    customer.save((err, customer) => {
+        if (err) {
+            console.log(err)
+            return res.status(202).send({ success: false, msg: "Error in creation!", document: null })
+        }
+        else return res.send({ success: true, document: customer, msg: "Success !" })
+    })
+})
+
+app.get("/api/customer/delete", (req, res) => {
+    Customer.deleteMany({}, (err, customer) => {
+
+        if (err) {
+            return res.status(202).send({ success: false, msg: "Error in Deletion !", document: customer })
+        }
+        else {
+      
+            return res.send({ success: true, msg: "Customer Deleted !", document: customer })
+        }
+    })
+})
+
+app.get("/api/customer/delete/:name", (req, res) => {
+    let customerName = req.params.name
+
+    Customer.find({ name: customerName }, (err, customerName) => {
+
+        if (err) return res.status(202).send({ success: false, msg: "Error in Customer deletion !" })
+
+        if (customer.length < 1) return res.status(202).send({ success: false, msg: "Customer Does Not Exist !" })
+
+        customerId = cuisine[0]._id
+
+        
+        })
+
+        Customer.deleteOne({ name: customerName }, (err, customer) => {
+            if (err) return res.status(202).send({ success: false, msg: "Error in Customerl deletion !" })
+            else {
+                return res.send({ success: false, msg: "Customer Deleted !", document: customer })
+            }
+        })
+    })
+
+
+    app.post("/api/customer/update/:name", (req, res) => {
+        let customerName = req.params.name;
+    
+        Customer.find({ name: customerName }, (err, customer) => {
+            if (err) return res.status(202).send({ success: false, msg: "Error in Updation!", document: null })
+            else {
+    
+                if (customer.length < 1) return res.status(202).send({ success: false, msg: "Cuisine Does Not Exist !" })
+    
+                customer = customer[0]
+    
+                customer.name = req.body.name || customer.name
+                customer.email = req.body.email || customer.email
+                customer.contact = req.body.contact || customer.contact
+                customer.gender = req.body.gender || customer.gender
+                customer.dates = req.body.dates || customer.dates
+                customer.status = req.body.status || customer.status
+    
+                customer.save((err, customer) => {
+                    if (err) return res.status(202).send({ success: false, msg: "Error in Updation", document: customer })
+                    else return res.send({ success: true, msg: "Customer details updated !", document: customer })
+                })
+            }
+        })
+    })
