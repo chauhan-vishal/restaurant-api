@@ -51,6 +51,16 @@ app.get("/api/cuisine/delete", (req, res) => {
         else {
             Category.deleteMany({}, (err, categories) => {
                 if (err) return res.status(202).send({ success: false, msg: "Erro in Category Deletion" })
+                else{
+                    SubCategory.deleteMany({}, (err, subcategories)=>{
+                        if(err) return res.status(200).send({success: false, msg : "Error in Sub Category Deletion !"})
+                        else{
+                            Item.deleteMany({}, (err, items) => {
+                                if(err) return res.status(200).send({success: false, msg : "Error in Item Deletion !"})
+                            })
+                        }
+                    })
+                }
             })
             return res.send({ success: true, msg: "Categories Deleted !", document: cuisines })
         }
