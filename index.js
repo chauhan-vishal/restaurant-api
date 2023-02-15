@@ -343,6 +343,7 @@ async function deleteSubCategoryByCategoryId(categoryId) {
 
 // item
 // ==============================================================================================================================================
+
 const Item = require("./schema/item")
 
 app.get("/api/item", (req, res) => {
@@ -517,76 +518,4 @@ app.post("/api/department/update/:name", (req, res) => {
         })
 
     })
-})
-
-
-// Employee
-// ==============================================================================================================================
-const Employee = require("./schema/employee");
-const e = require("express");
-const { mongo, default: mongoose } = require("mongoose");
-
-app.get("/api/employee/", (req, res) => {
-    Employee.find({}, (err, employees) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error Occured !" })
-        else {
-            return res.send({ success: true, msg: "Data Found", document: employees })
-        }
-    })
-})
-
-app.post("/api/employee/new", (req, res) => {
-
-    let departmentName = req.body.department
-
-    Department.findOne({ name: departmentName }, (err, department) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error Occured !" })
-
-        if (!department) return res.status(202).send({ success: false, msg: "Department Does Not Exist" })
-
-        let departmentId = department._id
-
-        let employee = new Employee({
-            name: { first: req.body.first, last: req.body.last },
-            gender: req.body.gender,
-            contact: req.body.contact,
-            email: req.body.email,
-            address: req.body.address,
-            dob: req.body.dob,
-            doj: req.body.doj,
-            departmentId: departmentId,
-            salary: req.body.salary,
-            allowances: { bonus: Number(req.body.bonus), da: Number(req.body.da) }
-        })
-
-        employee.save((err, employee) => {
-            if (err) { console.log(err); return res.status(202).send({ success: false, msg: "Error Occured !" }) }
-
-            return res.send({ success: true, msg: "Employee Created !", document: employee })
-        })
-    })
-
-})
-
-
-app.get("/api/employee/delete", (req, res) => {
-    Employee.deleteMany({}, (err, employees) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error Occured !" })
-        else return res.send({ success: true, msg: "Employee Deleted !", document: employees })
-    })
-})
-
-app.get("/api/employee/delete/:name", (req, res) => {
-
-    let empName = req.params.name
-
-    Employee.deleteOne({ "name.first": new RegExp(empName, "i") }, (err, emp) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error in Deletion !" })
-        else return res.send({ success: true, msg: "Emp Deleted !", document: emp })
-    })
-
-})
-app.post("/api/employee/update/:name", (req, res) => {
-    let employeeName = req.params.name
-
 })
