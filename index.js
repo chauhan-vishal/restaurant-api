@@ -78,8 +78,7 @@ app.get("/api/cuisine/delete/:name", async (req, res) => {
         console.log("Cuisine ID : " + await cuisine.getId())
         deleteCategoryByCuisineId(await cuisine.getId());
 
-        // let result = await cuisine.delete();
-        let result = null;
+        let result = await cuisine.delete();
 
         if (result) {
             res.send({ success: true, msg: "Cuisine Deleted", document: result })
