@@ -264,7 +264,7 @@ app.get("/api/sub-category/delete/:name", (req, res) => {
 
         if (subCategory.length < 1) return res.status(202).send({ success: false, msg: "Sub Category Does Not Exist !", document: subCategory })
 
-        subCategoryId = subCategory[0]._id
+        subCategoryId = subCategory[0]._id          
 
         // Menuitem.deleteMany({subCategoryId : subCategoryId}, (err, item)=>{
         //     if(err) return res.status(202).send({success:false, msg: "Error in Item Deletion !", document: item})
@@ -444,7 +444,7 @@ app.get("/api/customer/delete/:name", (req, res) => {
 
     Customer.find({ name: customerName }, (err, customerName) => {
 
-        if (err) return res.status(202).send({ success: false, msg: "Error in Customer deletion !" })
+            if (err) return res.status(202).send({ success: false, msg: "Error in Customer deletion !" })
 
         if (customer.length < 1) return res.status(202).send({ success: false, msg: "Customer Does Not Exist !" })
 
@@ -461,7 +461,7 @@ app.get("/api/customer/delete/:name", (req, res) => {
         })
     })
 
-
+    
     app.post("/api/customer/update/:name", (req, res) => {
         let customerName = req.params.name;
     
@@ -487,3 +487,84 @@ app.get("/api/customer/delete/:name", (req, res) => {
             }
         })
     })
+
+
+// Orders 
+// =============================================================================================================================================
+
+const Order = require("./schema/order")
+
+app.get("/api/order", (req, res) => {
+    Order.find({}, (err, order) => {
+        if (err) return res.status(202).send({ success: false, msg: "Error !", document: order })
+
+        return res.send({ success: true, msg: "item Found !", document: order })
+    })
+})
+
+app.post("/api/order/new", (req,res)=>{
+    
+    let order = new Order({
+      customerId:req.body.customerId,
+      amount:req.body.amount,
+      orderdate:req.body.orderdate,
+      item:req.body.item,
+        status: req.body.status || "inactive",
+    })
+
+    order.save((err, order) => {
+        if (err) {
+            console.log(err)
+            return res.status(202).send({ success: false, msg: "Error in creation!", document: null })
+        }
+        else return res.send({ success: true, document: order, msg: "Success !" })
+    })
+})
+
+app.get("/api/order/delete/:name", (req, res) => {
+    let order_id = req.params.order_id
+
+    Order.find({ name: order_id }, (err, order) => {
+
+        if (err) return res.status(202).send({ success: false, msg: "Error in category deletion !" })
+
+        if (order.length < 1) return res.status(202).send({ success: false, msg: "Order Does Not Exist !" })
+
+        orderId = order[0]._id
+
+        // SubCategory.deleteMany({cuisineId: cuisineId}, (err, categories)=>{
+        //     if(err) return res.status(202).send({success : false, msg : "Error in category deletion !"})
+        // })
+
+        Order.deleteOne({ name: order_id }, (err, order) => {
+            if (err) return res.status(202).send({ success: false, msg: "Error in order deletion !" })
+            else {
+                return res.send({ success: false, msg: "order Deleted !", document: order })
+            }
+        })
+    })
+})
+
+app.post("/api/order/update/:name", (req, res) => {
+    let order_id = req.params.order_id;
+
+    Order.find({ name: order_id }, (err, order) => {
+        if (err) return res.status(202).send({ success: false, msg: "Error in Updation!", document: null })
+        else {
+
+            if (order.length < 1) return res.status(202).send({ success: false, msg: " Does Not Exist !" })
+
+            order = order[0]
+
+            order.amount = req.body.name || order.amount
+            order.orderdate = req.body.desc || order.orderdate
+            order.item = req.body.item || order.item
+            order.status = req.body.status || order.status
+
+            order.save((err, order) => {
+                if (err) { console.log(err); return res.status(202).send({ success: false, msg: "Error in Updation", document: order }) }
+                else return res.send({ success: true, msg: "Category details updated !", document: order })
+            })
+        }
+    })
+})       

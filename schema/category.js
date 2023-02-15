@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const categroySchema = mongoose.Schema({
     name: { type: String, required: true },
-    desc: String,
+    desc: String, 
     cuisineId: mongoose.Schema.Types.ObjectId,
     status: { type: String, default: "inactive" }
 }, {
@@ -11,4 +11,4 @@ const categroySchema = mongoose.Schema({
 
 const Category = mongoose.model("Category", categroySchema)
 
-module.exports = Category
+module.exports = Category                   

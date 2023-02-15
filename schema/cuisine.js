@@ -8,6 +8,6 @@ const cuisineSchema = mongoose.Schema({
     timestamps: true
 })
 
-const Cuisine = mongoose.model("Cuisine", cuisineSchema)
+const  Cuisine = mongoose.model("Cuisine", cuisineSchema)
 
 module.exports = Cuisine
