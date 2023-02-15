@@ -75,7 +75,7 @@ app.get("/api/cuisine/delete/:name", async (req, res) => {
     let cuisine = new Cuisine({ name: req.params.name })
 
     if (await cuisine.exists()) {
-        console.log("Cuisine ID : " +  await cuisine.getId())
+        console.log("Cuisine ID : " + await cuisine.getId())
         deleteCategoryByCuisineId(await cuisine.getId());
 
         // let result = await cuisine.delete();
@@ -328,8 +328,9 @@ app.get("/api/sub-category/delete/:name", async (req, res) => {
 
             return res.send({ success: true, msg: "Sub Category Deleted !", document: subCategory })
         })
-    })
+    }
 })
+
 
 app.post("/api/sub-category/update/:name", (req, res) => {
     let subCategoryName = req.params.name
@@ -356,7 +357,7 @@ app.post("/api/sub-category/update/:name", (req, res) => {
 
 
 async function deleteSubCategoryByCategoryId(categoryId) {
-    let subCategories = await SubCategory.find({ categoryId : categoryId })
+    let subCategories = await SubCategory.find({ categoryId: categoryId })
 
     subCategories.forEach(async subCategory => {
         subCategory.delete()
@@ -527,27 +528,27 @@ app.get("/api/department/delete/:name", (req, res) => {
 
     app.post("/api/customer/update/:name", (req, res) => {
         let customerName = req.params.name;
-    
+
         Customer.find({ name: customerName }, (err, customer) => {
             if (err) return res.status(202).send({ success: false, msg: "Error in Updation!", document: null })
             else {
-    
+
                 if (customer.length < 1) return res.status(202).send({ success: false, msg: "Cuisine Does Not Exist !" })
-    
+
                 customer = customer[0]
-    
+
                 customer.name = req.body.name || customer.name
                 customer.email = req.body.email || customer.email
                 customer.contact = req.body.contact || customer.contact
                 customer.gender = req.body.gender || customer.gender
                 customer.dates = req.body.dates || customer.dates
                 customer.status = req.body.status || customer.status
-    
+
                 customer.save((err, customer) => {
                     if (err) return res.status(202).send({ success: false, msg: "Error in Updation", document: customer })
                     else return res.send({ success: true, msg: "Customer details updated !", document: customer })
                 })
             }
         })
-
     })
+})
