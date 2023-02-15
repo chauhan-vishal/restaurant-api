@@ -9,6 +9,18 @@ const categroySchema = mongoose.Schema({
     timestamps: true
 });
 
+categroySchema.methods.exists = async function (cName = this.name) {
+    return await Category.count({ name: cName }) == 1;
+}
+
+categroySchema.methods.getId = async function(){
+    return await Category.findOne({name : this.name})
+}
+
+categroySchema.methods.delete = async function(){
+    return await Category.deleteOne({name : this.name})
+}
+
 const Category = mongoose.model("Category", categroySchema)
 
 module.exports = Category
