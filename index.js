@@ -13,8 +13,8 @@ const Cuisine = require("./schema/cuisine")
 const Category = require("./schema/category");
 const SubCategory = require("./schema/sub-category");
 const Department = require("./schema/department");
-const Order = require("./schema/order");
 const Employee = require("./schema/employee")
+const Order = require("./schema/order");
 
 app.get("/", (req, res) => {
     res.send("Welcome !")
@@ -685,6 +685,51 @@ app.post("/api/customer/update/:name", (req, res) => {
 
 //orders
 //==============================================================================================================================================================================
+
+app.get("/api/order", (req, res) => {
+    Order.find({})
+        .then(orders => { return res.send({ success: true, msg: "Order details found", document: orders }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Erorr Occured", document: null }) })
+})
+
+app.post("/api/order/new", async (req, res) => {
+    let customer = new Customer({})
+    if (!await customer.exists()) {
+        return res.status(202).send({ success: false, msg: "Customer Does Not Exist", document: null })
+    }
+
+    let employee = new Employee({})
+    if (!await employee.exists()) {
+        return res.status(202).send({ success: false, msg: "Employee Does Not Exist", document: null })
+    }
+
+    let table = new Table({})
+    if (!await table.exists()) {
+        return res.status(202).send({ success: false, msg: "Table Does Not Exist", document: null })
+    }
+
+    let amount = 0
+    let orderItems = req.body.orderItems
+    
+    orderItems.forEach(item => {
+        console.log(item)
+    })
+
+    // let order = new Order({
+    //     customerId : await customer.getId(),
+    //     employeeId : await employee.getId(),
+    //     tableId : await table.getId(),
+    //     orderDate : new Date(),
+    //     items : orderItems,
+    //     amount : amount
+
+    // })
+
+    // order.save()
+    //     .then(order => { return res.send({ success: true, msg: "Order saved", document: order }) })
+    //     .catch(err => { return res.status(202).send({ success: false, msg: "Error in Order creation", document: err.message }) })
+})
+
 app.get("/api/order/delete/:name", async (req, res) => {
     let order = new Order({ name: req.params._id })
 
