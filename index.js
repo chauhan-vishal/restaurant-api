@@ -470,6 +470,8 @@ async function deleteItemsBySubCategoryId(subCategoryId) {
 // ==================================================================================================================
 const Department = require("./schema/department");
 const Order = require("./schema/order");
+const Table = require("./table");
+const Customer = require("./schema/customer");
 
 
 app.get("/api/department", (req, res) => {
@@ -544,6 +546,47 @@ app.get("/api/department/delete/:name", (req, res) => {
         })
     })
 })
+//customer
+//=============================================================================================================================================================================================================================
+
+app.get("/api/customer", (req, res) => {
+    let table = Table.find({}, (err, table) => {
+        if (err) return res.status(202).send({ success: false, msg: "Error Occured", document: null })
+        else return res.send({ success: true, msg: "Data Found", document: table })
+    })
+})
+
+app.post("/api/customer/new", async (req, res) => {
+    let customer = new Customer({
+        name :{
+            first:req.body.first,
+            last:req.body.last
+        },
+        email: req.body.email,
+        contact: req.body.contact,
+        gender:req.body.gender,
+        dates:{
+            dob:req.body.dob,
+            aob:req.body.aob
+        },
+        status: req.body.status || "inactive",
+    })
+
+    if (! await customer.exists()) {
+        customer.save((err, table) => {
+            if (err) return res.status(202).send({ success: false, msg: "Error in creation!", document: null })
+            else return res.send({ success: true, msg: "Success !", document: customer })
+        })
+    } else {
+        return res.status(202).send({ success: false, msg: "Customer already exists !", document: null })
+    }
+})
+
+
+
+
+
+
 
 
 app.post("/api/customer/update/:name", (req, res) => {
@@ -572,6 +615,102 @@ app.post("/api/customer/update/:name", (req, res) => {
     })
 })
 
+//Table
+//===============================================================================================================================================================================================
+
+app.get("/api/table", (req, res) => {
+    let table = Table.find({}, (err, table) => {
+        if (err) return res.status(202).send({ success: false, msg: "Error Occured", document: null })
+        else return res.send({ success: true, msg: "Data Found", document: table })
+    })
+})
+
+app.post("/api/table/new", async (req, res) => {
+    let table = new Table({
+        tableNo: req.body.tableNo,
+        noSeat: req.body.noSeat,
+        status: req.body.status || "inactive",
+    })
+
+    if (! await table.exists()) {
+        table.save((err, table) => {
+            if (err) return res.status(202).send({ success: false, msg: "Error in creation!", document: null })
+            else return res.send({ success: true, msg: "Success !", document: table })
+        })
+    } else {
+        return res.status(202).send({ success: false, msg: "Table already exists !", document: null })
+    }
+})
+
+
+app.get("/api/table/delete", (req, res) => {
+
+    Table.deleteMany({}, (err, table) => {
+        if (err) {
+            return res.status(202).send({ success: false, msg: "Error in Deletion !", document: table })
+        }
+        else {
+            table.deleteMany({}, (err, table) => {
+                if (err) return res.status(202).send({ success: false, msg: "Erro in table Deletion" })
+               
+            })
+            return res.send({ success: true, msg: "table Deleted !", document: table })
+        }
+    })
+
+})
+
+app.get("/api/table/delete/:tableNo", async (req, res) => {
+
+    let table = new Table({ name: req.params.name })
+
+    if (await table.exists()) {
+        console.log("Table ID : " + await table.getId())
+
+        let result = await table.delete();
+
+        if (result) {
+            res.send({ success: true, msg: "Table Deleted", document: result })
+        }
+        else {
+            res.status(202).send({ success: false, msg: "Error in deletion", document: null })
+        }
+    }
+    else {
+        return res.status(202).send({ success: false, msg: "Table Does Not Exist !", document: null })
+    }
+})
+app.post("/api/table/update/:tableNo", async (req, res) => {
+
+    let tableNo = req.body.tableNo;
+
+    if (await new Item({ tableNo: req.params.tableNo }).exists()) {
+
+        let table = new Table({ name: tableNo })
+
+        if (await table.exists() || table.tableNo == null) {
+
+            Table.findOne({ name: req.params.tableNo }, async (err, item) => {
+                Table.noSeat = req.body.noSeat || table.noSeat            
+                //item.subCategoryId = (subCategory != null) ? await subCategory.getId() : item.subCategoryId;
+                table.status = req.body.status || table.status
+
+                table.save((err, table) => {
+                    if (err) return res.status(202).send({ success: false, msg: "Error in Update", document: null })
+
+                    return res.send({ success: true, msg: "table Updated", document: table   })
+                })
+            })
+
+        }
+        else {
+            return res.status(202).send({ success: false, msg: "Sub Category Does Not Exist !", document: null })
+        }
+    }
+    else {
+        return res.status(202).send({ success: false, msg: "Item Does Not Exist !", document: null })
+    }
+})
 
 //orders
 //==============================================================================================================================================================================
@@ -602,3 +741,5 @@ function deleteAllOrder() {
         else return true
     })
 }
+
+
