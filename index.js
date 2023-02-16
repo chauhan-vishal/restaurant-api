@@ -596,7 +596,7 @@ app.get("/api/order/delete/:name", async (req, res) => {
     }
 })
 
-function deleteAllOrder {
+function deleteAllOrder() {
     Order.deleteMany({}, (err, order) => {
         if (err) return false
         else return true
