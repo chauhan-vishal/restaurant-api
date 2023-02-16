@@ -316,12 +316,6 @@ app.get("/api/sub-category/delete/:name", async (req, res) => {
 
         let result = await subCategory.delete()
 
-        subCategoryId = subCategory[0]._id
-
-        // Menuitem.deleteMany({subCategoryId : subCategoryId}, (err, item)=>{
-        //     if(err) return res.status(202).send({success:false, msg: "Error in Item Deletion !", document: item})
-        // })
-
         SubCategory.deleteOne({ name: subCategoryName }, (err, subCategory) => {
             if (err) return res.status(202).send({ success: false, msg: "Error in Sub Category Deletion !", document: subCategory })
 
@@ -485,17 +479,42 @@ app.get("/api/department", (req, res) => {
     })
 })
 
-app.post("/api/department/new", (req, res) => {
+app.post("/api/department/new", async (req, res) => {
     let department = new Department({
         name: req.body.name,
         desc: req.body.desc,
         status: req.body.status || "inactive"
     })
 
-    department.save((err, department) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error in Creation!" })
-        else return res.send({ success: true, msg: "Department Created !", document: department })
-    })
+    if (!await department.exists()) {
+        department.save((err, department) => {
+            if (err) return res.status(202).send({ success: false, msg: "Error in Creation!", document: null })
+            else return res.send({ success: true, msg: "Department Created !", document: department })
+        })
+    } else {
+        return res.send({ success: false, msg: "Department already exists !", document: null })
+    }
+})
+
+app.post("/api/department/update/:name", async (req, res) => {
+    let department = new Department({ name: req.params.name })
+
+    if (await department.exists()) {
+
+        Department.findOne({ name: new RegExp(department.name, "i") }, (err, dept) => {
+            dept.name = req.body.name || dept.name
+            dept.desc = req.body.desc || dept.desc
+            dept.status = req.body.status || dept.status
+
+            dept.save((err, dept) => {
+                if (err) return res.status(202).send({ success: false, msg: "Error in update", document: null })
+                else return res.send({ success: true, msg: "Department Updated", document: dept })
+            })
+        })
+
+    } else {
+        return res.status(202).send({ success: false, msg: "Department does not exist", document: null })
+    }
 })
 
 app.get("/api/department/delete", (req, res) => {
@@ -550,40 +569,6 @@ app.get("/api/department/delete/:name", (req, res) => {
                 })
             }
         })
-    })
-})
-
-
-app.get("/api/order", (req, res) => {
-    let order = Order.find({}, (err, order) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error Occured", document: null })
-        else return res.send({ success: true, msg: "Data Found", document: order })
-    })
-})
-
-app.post("/api/order/new", async (req, res) => {
-    let order = new Order({
-        customerId: req.body.customerId,
-        amount: req.body.amount,
-        orderDate:req.body.orderDate,
-        status: req.body.status || "inactive",
-    })
-
-    if (! await order.exists()) {
-        order.save((err, order) => {
-            if (err) return res.status(202).send({ success: false, msg: "Error in creation!", document: null })
-            else return res.send({ success: true, msg: "Success !", document: order })
-        })
-    } else {
-        return res.status(202).send({ success: false, msg: "Cuisine already exists !", document: null })
-    }
-})
-
-
-app.get("/api/category/delete", (req, res) => {
-    Category.deleteMany({}, (err, categories) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error in Deletion !", document: categories })
-        else return res.send({ success: true, msg: "Categories Deleted !", document: categories })
     })
 })
 
