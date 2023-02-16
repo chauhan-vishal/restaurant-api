@@ -475,6 +475,7 @@ async function deleteItemsBySubCategoryId(subCategoryId) {
 // Department
 // ==================================================================================================================
 const Department = require("./schema/department");
+const Order = require("./schema/order");
 
 
 app.get("/api/department", (req, res) => {
@@ -551,3 +552,74 @@ app.get("/api/department/delete/:name", (req, res) => {
         })
     })
 })
+
+
+app.get("/api/order", (req, res) => {
+    let order = Order.find({}, (err, order) => {
+        if (err) return res.status(202).send({ success: false, msg: "Error Occured", document: null })
+        else return res.send({ success: true, msg: "Data Found", document: order })
+    })
+})
+
+app.post("/api/order/new", async (req, res) => {
+    let order = new Order({
+        customerId: req.body.customerId,
+        amount: req.body.amount,
+        orderDate:req.body.orderDate,
+        status: req.body.status || "inactive",
+    })
+
+    if (! await order.exists()) {
+        order.save((err, order) => {
+            if (err) return res.status(202).send({ success: false, msg: "Error in creation!", document: null })
+            else return res.send({ success: true, msg: "Success !", document: order })
+        })
+    } else {
+        return res.status(202).send({ success: false, msg: "Cuisine already exists !", document: null })
+    }
+})
+
+
+app.get("/api/category/delete", (req, res) => {
+    Category.deleteMany({}, (err, categories) => {
+        if (err) return res.status(202).send({ success: false, msg: "Error in Deletion !", document: categories })
+        else return res.send({ success: true, msg: "Categories Deleted !", document: categories })
+    })
+})
+
+app.get("/api/order/delete/:name", async (req, res) => {
+    let order = new Order({ name: req.params._id })
+
+    if (await category.exists()) {
+
+        deleteSubCategoryByOederId(await order.getId())
+
+        let result = await order.delete()
+
+        if (result) {
+            return res.status(202).send({ success: true, msg: "Order Deleted", document: result })
+        }
+        else {
+            return res.status(202).send({ success: false, msg: "Error in Deletion", document: null })
+        }
+    }
+    else {
+        return res.status(202).send({ success: false, msg: "Order Does Not Exist !", document: null })
+    }
+})
+
+function deleteAllOrder {
+    Order.deleteMany({}, (err, order) => {
+        if (err) return false
+        else return true
+    })
+}
+
+async function deleteCategoryByCuisineId(cuisineId) {
+    let categories = await Category.find({ cuisineId: cuisineId })
+
+    categories.forEach(async category => {
+        category.delete()
+        await deleteSubCategoryByCategoryId(await category.getId())
+    });
+}
