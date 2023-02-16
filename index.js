@@ -12,6 +12,9 @@ const database = require("./database")
 const Cuisine = require("./schema/cuisine")
 const Category = require("./schema/category");
 const SubCategory = require("./schema/sub-category");
+const Department = require("./schema/department");
+const Order = require("./schema/order");
+const Employee = require("./schema/employee")
 
 app.get("/", (req, res) => {
     res.send("Welcome !")
@@ -363,7 +366,8 @@ async function deleteSubCategoryByCategoryId(categoryId) {
 // item
 // ==============================================================================================================================================
 
-const Item = require("./schema/item")
+const Item = require("./schema/item");
+const e = require("express");
 
 app.get("/api/item", (req, res) => {
     Item.find({}, (err, item) => {
@@ -489,10 +493,9 @@ app.post("/api/department/new", async (req, res) => {
     })
 
     if (!await department.exists()) {
-        department.save((err, department) => {
-            if (err) return res.status(202).send({ success: false, msg: "Error in Creation!", document: null })
-            else return res.send({ success: true, msg: "Department Created !", document: department })
-        })
+        department.save()
+            .then(dept => { return res.send({ success: true, msg: "Department Created !", document: dept }) })
+            .catch(err => { return res.status(202).send({ success: false, msg: "Error in Creation!", document: err.message }) })
     } else {
         return res.send({ success: false, msg: "Department already exists !", document: null })
     }
@@ -508,10 +511,9 @@ app.post("/api/department/update/:name", async (req, res) => {
             dept.desc = req.body.desc || dept.desc
             dept.status = req.body.status || dept.status
 
-            dept.save((err, dept) => {
-                if (err) return res.status(202).send({ success: false, msg: "Error in update", document: null })
-                else return res.send({ success: true, msg: "Department Updated", document: dept })
-            })
+            dept.save()
+                .then(dept => { return res.send({ success: true, msg: "Department Updated !", document: dept }) })
+                .catch(err => { return res.status(202).send({ success: false, msg: "Error in Creation!", document: err.message }) })
         })
 
     } else {
@@ -526,25 +528,133 @@ app.get("/api/department/delete", (req, res) => {
     })
 })
 
-app.get("/api/department/delete/:name", (req, res) => {
-    let departmentName = req.params.name
+app.get("/api/department/delete/:name", async (req, res) => {
+    let department = new Department({ name: req.params.name })
 
-    Department.findOne({ name: new RegExp(departmentName, "i") }, (err, department) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error in Deletion!" })
+    if (await department.exists()) {
+        let result = await department.delete()
 
-        if (err) return res.status(202).send({ success: false, msg: "Error in Customer deletion !" })
+        if (result) {
+            return res.status(202).send({ success: true, msg: "Department deleted", document: result })
+        }
+        else {
+            return res.status(202).send({ success: false, msg: "Error in deletion", document: null })
+        }
+    } else {
+        return res.status(202).send({ success: false, msg: "Department does not exist!", document: null })
+    }
+})
 
-        let departmentId = department._id
 
-        //Employee.deleteMany({departmentId : departmentId}, (err, employees)=>{
-        // if (err) return res.status(202).send({ success: false, msg: "Error in Employee Deletion!" })
-        // })
+// Employee
+// =================================================================================================================================
+app.get("/api/employee/", (req, res) => {
+    Employee.find({})
+        .then(emp => { return res.send({ success: true, msg: "Employee found", document: emp }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error Occred", document: err.msg }) })
+})
 
-        Department.deleteOne({ name: departmentName }, (err, department) => {
-            if (err) return res.status(202).send({ success: false, msg: "Error in Updation!" })
-            return res.send({ success: true, msg: "Department Deleted !", document: department })
-        })
+app.post("/api/employee/new", async (req, res) => {
+    let employee = new Employee({
+        name: {
+            first: req.body.first,
+            last: req.body.last,
+        },
+        gender: req.body.gender,
+        contact: req.body.contact,
+        email: req.body.email,
+        address: {
+            street: req.body.street,
+            city: req.body.city,
+            state: req.body.state,
+            country: req.body.country,
+            pincode: req.body.pincode
+        },
+        dob: req.body.dob,
+        doj: req.body.doj,
+        salary: Number(req.body.salary),
+        allowances: {
+            da: Number(req.body.da),
+            bonus: Number(req.body.bonus)
+        }
     })
+
+    if (!await employee.exists()) {
+        let department = new Department({ name: req.body.department })
+        if (await department.exists()) {
+
+            employee.departmentId = await department.getId()
+
+            employee.save()
+                .then(emp => { return res.send({ success: true, msg: "Employee created", document: emp }) })
+                .catch(err => { return res.status(202).send({ success: true, msg: "Error in creation", document: err.message }) })
+        } else {
+            return res.status(202).send({ success: false, msg: "Department does not exists", document: null })
+        }
+    } else {
+        return res.status(202).send({ success: false, msg: "Employee already exists", document: null })
+    }
+})
+
+app.post("/api/employee/update/:name", async (req, res) => {
+    let employee = new Employee({ email: req.body.email })
+
+    if (await employee.exists()) {
+        let department = new Department({ name: req.body.department })
+
+        if (!await department.exists()) {
+            return res.status(202).send({ success: false, msg: "Department does not exists", document: null })
+        } else {
+            Employee.findOne({ email: employee.email })
+                .then(async emp => {
+                    emp.name.set("first", req.body.first || emp.name.get("first"))
+                    emp.name.set("last", req.body.last || emp.name.get("last"))
+                    emp.gender = req.body.gender || emp.gender
+                    emp.contact = req.body.contact || emp.contact
+                    emp.email = req.body.email || emp.email
+                    emp.address.street = req.body.street || emp.address.street
+                    emp.address.city = req.body.city || emp.address.city
+                    emp.address.state = req.body.state || emp.address.state
+                    emp.address.country = req.body.country || emp.address.country
+                    emp.address.pincode = req.body.pincode || emp.address.pincode
+                    emp.dob = req.body.dob || emp.dob
+                    emp.doj = req.body.doj || emp.doj
+                    emp.salary = Number(req.body.salary) || emp.salary
+                    emp.allowances.set("da", Number(req.body.da) || emp.allowances.get("da"))
+                    emp.allowances.set("bonus", Number(req.body.bonus) || emp.allowances.get("bonus"))
+                    emp.departmentId = await department.getId()
+
+                    emp.save()
+                        .then(emp => { return res.send({ success: true, msg: "Employee Updated", document: emp }) })
+                        .catch(err => { return res.status(202).send({ success: false, msg: "Error in update", document: err.message }) })
+                })
+                .catch()
+        }
+    } else {
+        return res.status(202).send({ success: false, msg: "Employee does not exists", document: null })
+    }
+})
+
+app.get("/api/employee/delete", (req, res) => {
+    Employee.deleteMany({})
+        .then(emp => { return res.send({ success: true, msg: "Employees deleted", document: emp }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error in deletion", document: err.message }) })
+})
+
+app.get("/api/employee/delete/:name", async (req, res) => {
+    let employee = new Employee({ email: req.params.name })
+
+    if (await employee.exists()) {
+        let result = await employee.delete()
+
+        if (result) {
+            return res.send({ success: true, msg: "Employee deleted", document: result })
+        } else {
+            return res.status(202).send({ success: false, msg: "Error", document: null })
+        }
+    } else {
+        return res.status(202).send({ success: false, msg: "Employee does not exists", document: null })
+    }
 })
 //customer
 //=============================================================================================================================================================================================================================
@@ -628,6 +738,9 @@ app.get("/api/customer/delete/:name", async (req, res) => {
 
 
 
+
+// Customer 
+// ==========================================================================================================================================
 
 app.post("/api/customer/update/:name", (req, res) => {
     let customerName = req.params.name;
