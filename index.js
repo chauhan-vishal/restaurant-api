@@ -44,7 +44,7 @@ app.post("/api/cuisine/new", async (req, res) => {
     }
 })
 
-app.get("/api/cuisine/delete", (req, res) => {
+.get("/apiapp/cuisine/delete", (req, res) => {
 
     Cuisine.deleteMany({}, (err, cuisines) => {
         if (err) {
@@ -579,6 +579,46 @@ app.post("/api/customer/new", async (req, res) => {
         })
     } else {
         return res.status(202).send({ success: false, msg: "Customer already exists !", document: null })
+    }
+})
+
+get("/apiapp/customer/delete", (req, res) => {
+
+    Customer.deleteMany({}, (err, customer) => {
+        if (err) {
+            return res.status(202).send({ success: false, msg: "Error in Deletion !", document: customer })
+        }
+        else {
+            Customer.deleteMany({}, (err, customer) => {
+                if (err) return res.status(202).send({ success: false, msg: "Erro in Customer Deletion" })
+                                })
+                }
+            })
+            return res.send({ success: true, msg: "Customer Deleted !", document: customer })
+        }
+    )
+
+
+
+app.get("/api/customer/delete/:name", async (req, res) => {
+
+    let customer = new Customer({ name: req.params.name })
+
+    if (await customer.exists()) {
+        console.log("Customer ID : " + await customer.getId())
+        deleteCustomerId(await customer.getId());
+
+        let result = await customer.delete();
+
+        if (result) {
+            res.send({ success: true, msg: "Customer Deleted", document: result })
+        }
+        else {
+            res.status(202).send({ success: false, msg: "Error in deletion", document: null })
+        }
+    }
+    else {
+        return res.status(202).send({ success: false, msg: "Customer         Does Not Exist !", document: null })
     }
 })
 
