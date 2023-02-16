@@ -543,35 +543,38 @@ app.get("/api/department/delete/:name", (req, res) => {
             return res.send({ success: true, msg: "Department Deleted !", document: department })
         })
     })
+})
 
 
-    app.post("/api/customer/update/:name", (req, res) => {
-        let customerName = req.params.name;
+app.post("/api/customer/update/:name", (req, res) => {
+    let customerName = req.params.name;
 
-        Customer.find({ name: customerName }, (err, customer) => {
-            if (err) return res.status(202).send({ success: false, msg: "Error in Updation!", document: null })
-            else {
+    Customer.find({ name: customerName }, (err, customer) => {
+        if (err) return res.status(202).send({ success: false, msg: "Error in Updation!", document: null })
+        else {
 
-                if (customer.length < 1) return res.status(202).send({ success: false, msg: "Cuisine Does Not Exist !" })
+            if (customer.length < 1) return res.status(202).send({ success: false, msg: "Cuisine Does Not Exist !" })
 
-                customer = customer[0]
+            customer = customer[0]
 
-                customer.name = req.body.name || customer.name
-                customer.email = req.body.email || customer.email
-                customer.contact = req.body.contact || customer.contact
-                customer.gender = req.body.gender || customer.gender
-                customer.dates = req.body.dates || customer.dates
-                customer.status = req.body.status || customer.status
+            customer.name = req.body.name || customer.name
+            customer.email = req.body.email || customer.email
+            customer.contact = req.body.contact || customer.contact
+            customer.gender = req.body.gender || customer.gender
+            customer.dates = req.body.dates || customer.dates
+            customer.status = req.body.status || customer.status
 
-                customer.save((err, customer) => {
-                    if (err) return res.status(202).send({ success: false, msg: "Error in Updation", document: customer })
-                    else return res.send({ success: true, msg: "Customer details updated !", document: customer })
-                })
-            }
-        })
+            customer.save((err, customer) => {
+                if (err) return res.status(202).send({ success: false, msg: "Error in Updation", document: customer })
+                else return res.send({ success: true, msg: "Customer details updated !", document: customer })
+            })
+        }
     })
 })
 
+
+//orders
+//==============================================================================================================================================================================
 app.get("/api/order/delete/:name", async (req, res) => {
     let order = new Order({ name: req.params._id })
 
@@ -598,13 +601,4 @@ function deleteAllOrder {
         if (err) return false
         else return true
     })
-}
-
-async function deleteCategoryByCuisineId(cuisineId) {
-    let categories = await Category.find({ cuisineId: cuisineId })
-
-    categories.forEach(async category => {
-        category.delete()
-        await deleteSubCategoryByCategoryId(await category.getId())
-    });
 }
