@@ -15,116 +15,22 @@ const SubCategory = require("./schema/sub-category");
 const Department = require("./schema/department");
 const Employee = require("./schema/employee")
 const Order = require("./schema/order");
+const Item = require("./schema/item");
+const Table = require("./schema/table");
+const Customer = require("./schema/customer");
+const e = require("express");
 
 app.get("/", (req, res) => {
     res.send("Welcome !")
 })
 
 
-// Cuisine
-// ==================================================================================================================================
-app.get("/api/cuisine", (req, res) => {
-    let cuisines = Cuisine.find({}, (err, cuisines) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error Occured", document: null })
-        else return res.send({ success: true, msg: "Data Found", document: cuisines })
-    })
-})
-
-app.post("/api/cuisine/new", async (req, res) => {
-    let cuisine = new Cuisine({
-        name: req.body.name,
-        desc: req.body.desc,
-        status: req.body.status || "inactive",
-    })
-
-    if (! await cuisine.exists()) {
-        cuisine.save((err, cuisine) => {
-            if (err) return res.status(202).send({ success: false, msg: "Error in creation!", document: null })
-            else return res.send({ success: true, msg: "Success !", document: cuisine })
-        })
-    } else {
-        return res.status(202).send({ success: false, msg: "Cuisine already exists !", document: null })
-    }
-})
-
-.get("/apiapp/cuisine/delete", (req, res) => {
-
-    Cuisine.deleteMany({}, (err, cuisines) => {
-        if (err) {
-            return res.status(202).send({ success: false, msg: "Error in Deletion !", document: cuisines })
-        }
-        else {
-            Category.deleteMany({}, (err, categories) => {
-                if (err) return res.status(202).send({ success: false, msg: "Erro in Category Deletion" })
-                else {
-                    SubCategory.deleteMany({}, (err, subcategories) => {
-                        if (err) return res.status(200).send({ success: false, msg: "Error in Sub Category Deletion !" })
-                        else {
-                            Item.deleteMany({}, (err, items) => {
-                                if (err) return res.status(200).send({ success: false, msg: "Error in Item Deletion !" })
-                            })
-                        }
-                    })
-                }
-            })
-            return res.send({ success: true, msg: "Categories Deleted !", document: cuisines })
-        }
-    })
-
-})
-
-app.get("/api/cuisine/delete/:name", async (req, res) => {
-
-    let cuisine = new Cuisine({ name: req.params.name })
-
-    if (await cuisine.exists()) {
-        console.log("Cuisine ID : " + await cuisine.getId())
-        deleteCategoryByCuisineId(await cuisine.getId());
-
-        let result = await cuisine.delete();
-
-        if (result) {
-            res.send({ success: true, msg: "Cuisine Deleted", document: result })
-        }
-        else {
-            res.status(202).send({ success: false, msg: "Error in deletion", document: null })
-        }
-    }
-    else {
-        return res.status(202).send({ success: false, msg: "Cuisine Does Not Exist !", document: null })
-    }
-})
-
-app.post("/api/cuisine/update/:name", async (req, res) => {
-    let cuisineName = req.params.name;
-
-    if (await new Cuisine({ name: cuisineName }).exists()) {
-        Cuisine.findOne({ name: cuisineName }, (err, cuisine) => {
-            if (err) return res.status(202).send({ success: false, msg: "Error in Updation!", document: null })
-
-            cuisine.name = req.body.name || cuisine.name
-            cuisine.desc = req.body.desc || cuisine.desc
-            cuisine.status = req.body.status || cuisine.status
-
-            cuisine.save((err, cuisine) => {
-                if (err) return res.status(202).send({ success: false, msg: "Error in Updation", document: cuisine })
-                else return res.send({ success: true, msg: "Cuisine details updated !", document: cuisine })
-            })
-        })
-    }
-    else {
-        return res.status(202).send({ success: false, msg: "Cuisine Does Not Exist !" })
-    }
-})
-
-
 // Category
 // ==================================================================================================================================
 app.get("/api/category", (req, res) => {
-    Category.find({}, (err, categories) => {
-        if (err) return res.status(202).send("Error Occured !")
-        else return res.send({ success: true, msg: "Data Found", document: categories })
-    })
+    Category.find({})
+        .then(categories => { return res.send({ success: true, msg: "Data Found", document: categories }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error Occured", document: err.message }) })
 })
 
 app.post("/api/category/new", async (req, res) => {
@@ -135,107 +41,166 @@ app.post("/api/category/new", async (req, res) => {
     })
 
     if (!await category.exists()) {
-        if (await new Cuisine({ name: req.body.cuisineName }).exists()) {
-            let cuisineId = await Cuisine.findOne({ name: req.body.cuisineName });
-
-            category.cuisineId = cuisineId
-
-            category.save((err, category) => {
-                if (err) return res.status(202).send({ success: false, msg: "Error in creation!", document: null })
-                else res.send({ success: true, document: category, msg: "Success !" })
-            })
-        }
-        else {
-            return res.status(202).send({ success: false, msg: "Cuisine does not exists !", document: null })
-        }
-    }
-    else {
+        category.save()
+            .then(category => { return res.send({ success: true, msg: "Category Created", document: category }) })
+            .catch(err => { return res.status(202).send({ success: false, msg: "Error in creation!", document: err.message }) })
+    } else {
         return res.status(202).send({ success: false, msg: "Category already exists !", document: null })
     }
 })
 
-app.post("/api/category/update/:name", async (req, res) => {
-    let categoryName = req.params.name;
-    let cuisineName = req.body.cuisineName;
+app.post("/api/category/update/", async (req, res) => {
+    let categoryId = req.body.categoryId;
+    Category.findById(categoryId)
+        .then(async category => {
 
-    if (await new Category({ name: categoryName }).exists()) {
-        let cuisine = new Cuisine({ name: cuisineName });
+            let c = await Category.findOne({ name: req.body.name })
 
-        if (await cuisine.exists() || cuisineName == null) {
-            Category.findOne({ name: categoryName }, async (err, category) => {
-                category.name = req.body.name || category.name
-                category.desc = req.body.desc || category.desc
-                category.cuisineId = (cuisineName != null) ? await cuisine.getId() : category.cuisineId
-                category.status = req.body.status || category.status
+            if (c != null && c._id.toString() != category._id.toString()) {
+                return res.send({ success: false, msg: "Category name already exists", document: null })
+            }
 
-                category.save((err, category) => {
-                    if (err) { console.log(err); return res.status(202).send({ success: false, msg: "Error in Updation", document: category }) }
-                    else return res.send({ success: true, msg: "Category details updated !", document: category })
-                })
-            })
-        }
-        else {
-            return res.status(202).send({ success: false, msg: "Cuisine Does Not exists !", document: null })
-        }
-    }
-    else {
-        return res.status(202).send({ success: false, msg: "Category Does Not Exist !", document: null })
-    }
+            category.name = req.body.name || category.name
+            category.desc = req.body.desc || category.desc
+            category.status = req.body.status || category.status
+
+            category.save()
+                .then(category => { return res.send({ success: true, msg: "Category details updated !", document: category }) })
+                .catch(err => { return res.status(202).send({ success: false, msg: "Error in Updation", document: err.message }) })
+        })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Category Does Not Exist !", document: err.message }) })
 })
 
 app.get("/api/category/delete", (req, res) => {
-    Category.deleteMany({}, (err, categories) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error in Deletion !", document: categories })
-        else return res.send({ success: true, msg: "Categories Deleted !", document: categories })
-    })
+    Category.deleteMany({})
+        .then(categorys => {
+            Cuisine.deleteMany({})
+                .then(cuisine => {
+                    SubCategory.deleteMany({})
+                        .then(subCategories => {
+                            Item.deleteMany({})
+                                .then(items => { })
+                                .catch(err => { return res.status(202).send({ success: false, msg: "Error in Item Deletion !", document: err.message }) })
+                        })
+                        .catch(err => { return res.status(202).send({ success: false, msg: "Error in Sub Category Deletion !", document: err.message }) })
+                })
+                .catch(err => { return res.status(202).send({ success: false, msg: "Error in Cuisine Deletion !", document: err.message }) })
+            return res.send({ success: true, msg: "Categorys deleted", document: categorys })
+        })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error in Category Deletion !", document: err.message }) })
 })
 
-app.get("/api/category/delete/:name", async (req, res) => {
-    let category = new Category({ name: req.params.name })
+app.get("/api/category/delete/:categoryId", (req, res) => {
+    Category.findById(req.params.categoryId)
+        .then(async category => {
+            deleteCuisineByCategoryId(category._id);
 
-    if (await category.exists()) {
+            let result = await category.delete();
 
-        deleteSubCategoryByCategoryId(await category.getId())
+            if (result) {
+                res.send({ success: true, msg: "Category Deleted", document: result })
+            }
+            else {
+                res.status(202).send({ success: false, msg: "Error in deletion", document: null })
+            }
+        })
+        .catch(err => { res.status(202).send({ success: false, msg: "Category Does Not Exist !", document: null }) })
+})
 
-        let result = await category.delete()
 
-        if (result) {
-            return res.status(202).send({ success: true, msg: "Category Deleted", document: result })
-        }
-        else {
-            return res.status(202).send({ success: false, msg: "Error in Deletion", document: null })
-        }
+// Cuisine
+// ==================================================================================================================================
+app.get("/api/cuisine", (req, res) => {
+    Cuisine.find({})
+        .then(cuisines => { return res.send({ success: true, msg: "Data Found", document: cuisines }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error Occured", document: err.message }) })
+})
+
+app.post("/api/cuisine/new", async (req, res) => {
+    let cuisine = new Cuisine({
+        name: req.body.name,
+        desc: req.body.desc,
+        status: req.body.status || "inactive",
+    })
+
+    if (!await cuisine.exists()) {
+        Category.findById(req.body.categoryId)
+            .then(category => {
+                cuisine.categoryId = category._id
+
+                cuisine.save()
+                    .then(c => { return res.send({ success: true, msg: "Cuisine Created", document: c }) })
+                    .catch(err => { return res.status(202).send({ success: true, msg: "Error in creation", document: err.message }) })
+            })
+            .catch(err => { return res.status(202).send({ success: false, msg: "Category does not exists !", document: null }) })
     }
     else {
-        return res.status(202).send({ success: false, msg: "Category Does Not Exist !", document: null })
+        return res.status(202).send({ success: false, msg: "Cuisine already exists !", document: null })
     }
 })
 
-function deleteAllCategory() {
-    Category.deleteMany({}, (err, categories) => {
-        if (err) return false
-        else return true
-    })
-}
+app.post("/api/cuisine/update/", async (req, res) => {
+    Cuisine.findById(req.body.cuisineId)
+        .then(async cuisine => {
+            let c = await Cuisine.findOne({ name: req.body.name })
 
-async function deleteCategoryByCuisineId(cuisineId) {
-    let categories = await Category.find({ cuisineId: cuisineId })
+            if (c != null && c._id.toString() != cuisine._id.toString()) {
+                return res.send({ success: false, msg: "Cuisine name already exists", document: null })
+            }
 
-    categories.forEach(async category => {
-        category.delete()
-        await deleteSubCategoryByCategoryId(await category.getId())
+            if (req.body.categoryId) {
+                Category.findById(req.body.categoryId)
+                    .then(category => { cuisine.categoryId = category._id || cuisine.categoryId })
+                    .catch(err => { return res.status(202).send({ success: false, msg: "Category Does Not Exist !", document: err.message }) })
+            }
+
+            cuisine.name = req.body.name || cuisine.name
+            cuisine.desc = req.body.desc || cuisine.desc
+            cuisine.status = req.body.status || cuisine.status
+
+            cuisine.save()
+                .then(c => { return res.send({ success: true, msg: "Cuisine details updated !", document: c }) })
+                .catch(err => { console.log(err); return res.status(202).send({ success: false, msg: "Error in Updation", document: cuisine }) })
+        })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Cuisine Does Not Exist !", document: err.message }) })
+
+})
+
+app.get("/api/cuisine/delete", (req, res) => {
+    Cuisine.deleteMany({})
+        .then(categories => { return res.send({ success: true, msg: "Categories Deleted !", document: categories }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error in Deletion !", document: err.message }) })
+})
+
+app.get("/api/cuisine/delete/:cuisineId", async (req, res) => {
+
+    Cuisine.findById(req.params.cuisineId)
+        .then(cuisine => {
+            deleteSubCategoryByCuisineId(cuisine._id)
+
+            Cuisine.deleteOne({ _id: cuisine._id })
+                .then(result => { return res.send({ success: true, msg: "Cuisine deleted", document: result }) })
+                .catch(err => { return res.status(202).send({ success: false, msg: "Error occured", document: err.message }) })
+        })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Cuisine does not exists", document: err.message }) })
+})
+
+async function deleteCuisineByCategoryId(categoryId) {
+    let categories = await Cuisine.find({ categoryId: categoryId })
+
+    categories.forEach(async cuisine => {
+        cuisine.delete()
+        await deleteSubCategoryByCuisineId(await cuisine.getId())
     });
 }
-
 
 
 // Sub Category
 // ================================================================================================================================
 app.get("/api/sub-category/", (req, res) => {
-    SubCategory.find({}, (err, subCategories) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error Occured", document: null })
-        else return res.send({ success: true, msg: "Data Found", document: subCategories })
-    })
+    SubCategory.find({})
+        .then(subCategories => { return res.send({ success: true, msg: "Data Found", document: subCategories }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error Occured", document: err.message }) })
 })
 
 app.post("/api/sub-category/new", async (req, res) => {
@@ -248,58 +213,45 @@ app.post("/api/sub-category/new", async (req, res) => {
 
     if (!await subCategory.exists()) {
 
-        let category = new Category({ name: req.body.categoryName });
+        Cuisine.findById(req.body.cuisineId)
+            .then(cuisine => {
+                subCategory.cuisineId = cuisine._id
 
-        if (await category.exists()) {
-
-            subCategory.categoryId = await category.getId()
-
-            subCategory.save((err, category) => {
-                if (err) return res.status(202).send({ success: false, msg: "Error in creation !", document: category })
-                return res.send({ success: true, msg: "Sub Category Created !", document: category })
+                subCategory.save()
+                    .then(subCategory => { return res.send({ success: true, msg: "Sub Category Created", document: subCategory }) })
+                    .catch(err => { return res.status(202).send({ success: false, msg: "Error occured", document: err.message }) })
             })
-        }
-        else {
-            return res.status(202).send({ success: false, msg: "Category does not exist", document: null })
-        }
+            .catch(err => { return res.status(202).send({ success: false, msg: "Cuisine does not exist", document: err.message }) })
     }
     else {
         return res.status(202).send({ success: false, msg: "Sub Category already exists !", document: null })
     }
 })
 
-app.post("/api/sub-category/update/:name", async (req, res) => {
+app.post("/api/sub-category/update/", (req, res) => {
+    SubCategory.findById(req.body.subCategoryId)
+        .then(async subCategory => {
 
-    let categoryName = req.body.categoryName;
+            let subCategory2 = await SubCategory.findOne({ name: req.body.name })
 
-    if (await new SubCategory({ name: req.params.name }).exists()) {
+            if (subCategory2 != null && subCategory2._id.toString() != subCategory._id.toString()) {
+                return res.send({ success: false, msg: "Sub Category Name already exists", document: subCategory2 })
+            }
 
-        let category = new Category({ name: categoryName })
+            Cuisine.findById(req.body.cuisineId)
+                .then(cuisine => {
+                    subCategory.name = req.body.name || subCategory.name
+                    subCategory.desc = req.body.desc || subCategory.desc
+                    subCategory.cuisineId = cuisine._id || subCategory.categoryId;
+                    subCategory.status = req.body.status || subCategory.status
 
-        if (await category.exists() || category.name == null) {
-
-            SubCategory.findOne({ name: req.params.name }, async (err, subCategory) => {
-                subCategory.name = req.body.name || subCategory.name
-                subCategory.desc = req.body.desc || subCategory.desc
-                subCategory.categoryId = (categoryName != null) ? await category.getId() : subCategory.categoryId;
-                subCategory.status = req.body.status || subCategory.status
-
-                subCategory.save((err, subCategory) => {
-                    if (err) return res.status(202).send({ success: false, msg: "Error in Update", document: null })
-
-                    return res.send({ success: true, msg: "Sub Category Updated", document: subCategory })
+                    subCategory.save()
+                        .then(subCategory => { return res.send({ success: true, msg: "Sub Category Updated", document: subCategory }) })
+                        .catch(err => { return res.status(202).send({ success: false, msg: "Error occured", document: err.message }) })
                 })
-            })
-
-        }
-        else {
-            return res.status(202).send({ success: false, msg: "Category Does Not Exist !", document: null })
-        }
-    }
-    else {
-        return res.status(202).send({ success: false, msg: "Sub Category Does Not Exist !", document: null })
-    }
-
+                .catch(err => { return res.status(202).send({ success: false, msg: "Cuisine does not exist", document: err.message }) })
+        })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Sub Category does not exist", document: err.message }) })
 })
 
 app.get("/api/sub-category/delete", (req, res) => {
@@ -310,71 +262,34 @@ app.get("/api/sub-category/delete", (req, res) => {
     })
 })
 
-app.get("/api/sub-category/delete/:name", async (req, res) => {
-    let subCategory = new SubCategory({ name: req.params.name })
+app.get("/api/sub-category/delete/:subCategoryId", async (req, res) => {
+    SubCategory.findById(req.params.subCategoryId)
+        .then(subCategory => {
+            deleteItemsBySubCategoryId(subCategory._id)
 
-    if (await subCategory.exists()) {
-
-        deleteItemsBySubCategoryId(await subCategory.getId())
-
-        let result = await subCategory.delete()
-
-        SubCategory.deleteOne({ name: subCategoryName }, (err, subCategory) => {
-            if (err) return res.status(202).send({ success: false, msg: "Error in Sub Category Deletion !", document: subCategory })
-
-            return res.send({ success: true, msg: "Sub Category Deleted !", document: subCategory })
+            subCategory.delete()
+                .then(result => { return res.status(202).send({ success: true, msg: "Sub Category deleted", document: result }) })
+                .catch(err => { return res.status(202).send({ success: false, msg: "Sub Category does not exist", document: err.message }) })
         })
-    }
+        .catch(err => { return res.status(202).send({ success: false, msg: "Sub Category does not exist", document: err.message }) })
 })
 
-
-app.post("/api/sub-category/update/:name", (req, res) => {
-    let subCategoryName = req.params.name
-
-    SubCategory.find({ name: subCategoryName }, (err, subCategory) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error in update !", document: subCategory })
-
-        if (subCategory.length < 1) return res.status(202).send({ success: true, msg: "Sub Category Does Not Exist !", document: subCategory })
-
-        subCategory = subCategory[0]
-
-        subCategory.name = req.body.name || subCategory.name
-        subCategory.desc = req.body.desc || subCategory.desc
-        subCategory.status = req.body.status || subCategory.status
-
-        subCategory.save((err, subCategory) => {
-            if (err) return res.status(202).send({ success: false, msg: "Error in Update !", document: subCategory })
-
-            return res.send({ success: true, msg: "Sub Category Updated !", document: subCategory })
-        })
-
-    })
-})
-
-
-async function deleteSubCategoryByCategoryId(categoryId) {
-    let subCategories = await SubCategory.find({ categoryId: categoryId })
+async function deleteSubCategoryByCuisineId(cuisineId) {
+    let subCategories = await SubCategory.find({ cuisineId: cuisineId })
 
     subCategories.forEach(async subCategory => {
         subCategory.delete()
-        await deleteItemsBySubCategoryId(await subCategory.getId())
+        await deleteItemsBySubCategoryId(subCategory._id)
     });
 }
 
 
-
 // item
 // ==============================================================================================================================================
-
-const Item = require("./schema/item");
-const e = require("express");
-
 app.get("/api/item", (req, res) => {
-    Item.find({}, (err, item) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error !", document: item })
-
-        return res.send({ success: true, msg: "Data Found", document: item })
-    })
+    Item.find({})
+        .then(item => { return res.send({ success: true, msg: "Data Found", document: item }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error !", document: item }) })
 })
 
 app.post("/api/item/new", async (req, res) => {
@@ -385,104 +300,79 @@ app.post("/api/item/new", async (req, res) => {
     })
 
     if (!await item.exists()) {
+        SubCategory.findById(req.body.subCategoryId)
+            .then(subCategory => {
+                item.subCategoryId = subCategory._id
 
-        let subCategory = new SubCategory({ name: req.body.subCategoryName })
-
-        if (await subCategory.exists()) {
-
-            item.subCategoryId = await subCategory.getId()
-
-            item.save((err, item) => {
-                if (err) return res.status(202).send({ success: false, msg: "Error in creation !", document: item })
-                return res.send({ success: true, msg: "Sub Category Created !", document: item })
+                item.save()
+                    .then(item => { res.send({ success: true, msg: "Sub Category Created !", document: item }) })
+                    .catch(err => { return res.status(202).send({ success: false, msg: "Error in creation !", document: item }) })
             })
-        }
-        else {
-            return res.status(202).send({ success: false, msg: "Sub Category Does Not Exist !", document: null })
-        }
-
+            .catch(err => { return res.status(202).send({ success: false, msg: "Sub Category Does Not Exist !", document: err.message }) })
     }
     else {
         return res.status(202).send({ success: false, msg: "Item already exists", document: null })
     }
 })
 
-app.post("/api/item/update/:name", async (req, res) => {
+app.post("/api/item/update/", (req, res) => {
+    Item.findById(req.body.itemId)
+        .then(async item => {
 
-    let subCategoryName = req.body.subCategoryName;
+            let item2 = await Item.findOne({ name: req.body.name })
 
-    if (await new Item({ name: req.params.name }).exists()) {
+            if (item2 != null && item2._id.toString() != item._id.toString()) {
+                return res.send({ success: false, msg: "Item name already exists", document: item2 })
+            }
 
-        let subCategory = new SubCategory({ name: subCategoryName })
+            SubCategory.findById(req.body.subCategoryId)
+                .then(subCategory => {
+                    item.name = req.body.name || item.name
+                    item.desc = req.body.desc || item.desc
+                    item.status = req.body.status || item.status
+                    item.subCategoryId = subCategory._id
 
-        if (await subCategory.exists() || subCategory.name == null) {
-
-            Item.findOne({ name: req.params.name }, async (err, item) => {
-                item.name = req.body.name || item.name
-                item.desc = req.body.desc || item.desc
-                item.subCategoryId = (subCategory != null) ? await subCategory.getId() : item.subCategoryId;
-                item.status = req.body.status || item.status
-
-                item.save((err, item) => {
-                    if (err) return res.status(202).send({ success: false, msg: "Error in Update", document: null })
-
-                    return res.send({ success: true, msg: "Item Updated", document: item })
+                    item.save()
+                        .then(item => { return res.send({ success: true, msg: "Item details updated", document: item }) })
+                        .catch(err => { return res.send({ success: false, msg: "Error in Update", document: err.message }) })
                 })
-            })
+                .catch(err => { return res.send({ success: false, msg: "Sub Category does not exist", document: err.message }) })
 
-        }
-        else {
-            return res.status(202).send({ success: false, msg: "Sub Category Does Not Exist !", document: null })
-        }
-    }
-    else {
-        return res.status(202).send({ success: false, msg: "Item Does Not Exist !", document: null })
-    }
+        })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Item does not exist", document: err.message }) })
 })
 
 app.get("/api/item/delete", (req, res) => {
-    Item.deleteMany({}, (err, items) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error", document: items })
-
-        return res.send({ success: true, msg: "Deleted !", document: items })
-    })
+    Item.deleteMany()
+        .then(result => { return res.send({ success: true, msg: "Items Deleted !", document: result }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error", document: err.message }) })
 })
 
-app.get("/api/item/delete/:name", async (req, res) => {
-    let item = new Item({ name: req.params.name })
-
-    if (await item.exists()) {
-        let result = await item.delete()
-
-        if (result) {
-            return res.status(202).send({ success: true, msg: "Item deleted", document: result })
-        }
-        else {
-            return res.status(202).send({ success: false, msg: "Error in deletion", document: null })
-        }
-    } else {
-        return res.status(202).send({ success: false, msg: "Item Does Not Exist !", document: null })
-    }
+app.get("/api/item/delete/:itemId", (req, res) => {
+    Item.findById(req.params.itemId)
+        .then(async item => {
+            let result = await item.delete()
+            if (result) {
+                return res.send({ success: true, msg: "Item deleted", document: result })
+            }
+            else {
+                return res.send({ success: false, msg: "Error in deletion", document: result })
+            }
+        })
+        .catch(err => { return res.send({ success: false, msg: "Item does not exists", document: err.message }) })
 })
 
 async function deleteItemsBySubCategoryId(subCategoryId) {
-    await SubCategory.deleteMany({ subCategoryId: subCategoryId })
+    await Item.deleteMany({ subCategoryId: subCategoryId })
 }
 
 
 // Department
 // ==================================================================================================================
-const Department = require("./schema/department");
-const Order = require("./schema/order");
-const Table = require("./table");
-const Customer = require("./schema/customer");
-
-
 app.get("/api/department", (req, res) => {
-    Department.find({}, (err, departments) => {
-        if (err) return res.status(202).send({ success: false, msg: "Departments not found!" })
-        else return res.send({ success: true, msg: "Data Found", document: departments })
-    })
+    Department.find()
+        .then(departments => { return res.send({ success: true, msg: "Data Found", document: departments }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Departments not found!", document: err.message }) })
 })
 
 app.post("/api/department/new", async (req, res) => {
@@ -501,48 +391,57 @@ app.post("/api/department/new", async (req, res) => {
     }
 })
 
-app.post("/api/department/update/:name", async (req, res) => {
-    let department = new Department({ name: req.params.name })
+app.put("/api/department/update", async (req, res) => {
+    Department.findById(req.body.departmentId)
+        .then(async department => {
+            let department2 = await Department.findOne({ name: new RegExp(req.body.name, "i") })
 
-    if (await department.exists()) {
+            if (department2 != null && department2._id.toString() != department._id.toString()) {
+                return res.status(202).send({ success: false, msg: "Department name already exist", document: department2 })
+            }
 
-        Department.findOne({ name: new RegExp(department.name, "i") }, (err, dept) => {
-            dept.name = req.body.name || dept.name
-            dept.desc = req.body.desc || dept.desc
-            dept.status = req.body.status || dept.status
+            department.name = req.body.name || department.name
+            department.desc = req.body.desc || department.desc
+            department.status = req.body.status || department.status
 
-            dept.save()
+            department.save()
                 .then(dept => { return res.send({ success: true, msg: "Department Updated !", document: dept }) })
                 .catch(err => { return res.status(202).send({ success: false, msg: "Error in Creation!", document: err.message }) })
         })
-
-    } else {
-        return res.status(202).send({ success: false, msg: "Department does not exist", document: null })
-    }
+        .catch(err => { return res.status(202).send({ success: false, msg: "Department does not exist", document: err.message }) })
 })
 
 app.get("/api/department/delete", (req, res) => {
-    Department.deleteMany({}, (err, departments) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error in Deletion!" })
-        else return res.send({ success: true, msg: "Departments Deleted !", document: departments })
-    })
+    Department.deleteMany()
+        .then(result => {
+            Employee.deleteMany({})
+            return res.send({ success: true, msg: "Departments Deleted !", document: result })
+        })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error in Deletion!", document: err.message }) })
 })
 
-app.get("/api/department/delete/:name", async (req, res) => {
-    let department = new Department({ name: req.params.name })
+app.get("/api/department/delete/:departmentId", async (req, res) => {
+    Department.findById(req.params.departmentId)
+        .then(async department => {
 
-    if (await department.exists()) {
-        let result = await department.delete()
+            Employee.find({ departmentId: department._id })
+                .then(employees => {
+                    employees.forEach(emp => {
+                        emp.delete()
+                    })
+                })
+                .catch()
 
-        if (result) {
-            return res.status(202).send({ success: true, msg: "Department deleted", document: result })
-        }
-        else {
-            return res.status(202).send({ success: false, msg: "Error in deletion", document: null })
-        }
-    } else {
-        return res.status(202).send({ success: false, msg: "Department does not exist!", document: null })
-    }
+            let result = await department.delete()
+
+            if (result) {
+                return res.status(202).send({ success: true, msg: "Department deleted", document: result })
+            }
+            else {
+                return res.status(202).send({ success: false, msg: "Error in deletion", document: result })
+            }
+        })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Department does not exist!", document: err.message }) })
 })
 
 
@@ -580,59 +479,58 @@ app.post("/api/employee/new", async (req, res) => {
     })
 
     if (!await employee.exists()) {
-        let department = new Department({ name: req.body.department })
-        if (await department.exists()) {
+        Department.findById(req.body.departmentId)
+            .then(department => {
+                employee.departmentId = department._id
 
-            employee.departmentId = await department.getId()
-
-            employee.save()
-                .then(emp => { return res.send({ success: true, msg: "Employee created", document: emp }) })
-                .catch(err => { return res.status(202).send({ success: true, msg: "Error in creation", document: err.message }) })
-        } else {
-            return res.status(202).send({ success: false, msg: "Department does not exists", document: null })
-        }
+                employee.save()
+                    .then(emp => { return res.send({ success: true, msg: "Employee created", document: emp }) })
+                    .catch(err => { return res.status(202).send({ success: true, msg: "Error in creation", document: err.message }) })
+            })
+            .catch(err => { return res.status(202).send({ success: false, msg: "Department does not exists", document: err.message }) })
     } else {
         return res.status(202).send({ success: false, msg: "Employee already exists", document: null })
     }
 })
 
-app.post("/api/employee/update/:name", async (req, res) => {
-    let employee = new Employee({ email: req.body.email })
+app.put("/api/employee/update", async (req, res) => {
+    Employee.findById(req.body.employeeId)
+        .then(async employee => {
 
-    if (await employee.exists()) {
-        let department = new Department({ name: req.body.department })
+            let employee2 = await Employee.findOne({ email: req.body.email })
 
-        if (!await department.exists()) {
-            return res.status(202).send({ success: false, msg: "Department does not exists", document: null })
-        } else {
-            Employee.findOne({ email: employee.email })
-                .then(async emp => {
-                    emp.name.set("first", req.body.first || emp.name.get("first"))
-                    emp.name.set("last", req.body.last || emp.name.get("last"))
-                    emp.gender = req.body.gender || emp.gender
-                    emp.contact = req.body.contact || emp.contact
-                    emp.email = req.body.email || emp.email
-                    emp.address.street = req.body.street || emp.address.street
-                    emp.address.city = req.body.city || emp.address.city
-                    emp.address.state = req.body.state || emp.address.state
-                    emp.address.country = req.body.country || emp.address.country
-                    emp.address.pincode = req.body.pincode || emp.address.pincode
-                    emp.dob = req.body.dob || emp.dob
-                    emp.doj = req.body.doj || emp.doj
-                    emp.salary = Number(req.body.salary) || emp.salary
-                    emp.allowances.set("da", Number(req.body.da) || emp.allowances.get("da"))
-                    emp.allowances.set("bonus", Number(req.body.bonus) || emp.allowances.get("bonus"))
-                    emp.departmentId = await department.getId()
+            if (employee2 != null && employee2._id.toString() != employee._id.toString()) {
+                return res.status(202).send({ success: false, msg: "Employee Email already exist", document: employee2 })
+            }
 
-                    emp.save()
-                        .then(emp => { return res.send({ success: true, msg: "Employee Updated", document: emp }) })
-                        .catch(err => { return res.status(202).send({ success: false, msg: "Error in update", document: err.message }) })
-                })
-                .catch()
-        }
-    } else {
-        return res.status(202).send({ success: false, msg: "Employee does not exists", document: null })
-    }
+            if (req.body.departmentId) {
+                Department.findById(req.body.departmentId)
+                    .then(department => {
+                        employee.departmentId = department._id
+                    })
+                    .catch(err => { return res.status(202).send({ success: false, msg: "Department does not exist", document: err.message }) })
+            }
+            employee.name.set("first", req.body.first || employee.name.get("first"))
+            employee.name.set("last", req.body.last || employee.name.get("last"))
+            employee.gender = req.body.gender || employee.gender
+            employee.contact = req.body.contact || employee.contact
+            employee.email = req.body.email || employee.email
+            employee.address.street = req.body.street || employee.address.street
+            employee.address.city = req.body.city || employee.address.city
+            employee.address.state = req.body.state || employee.address.state
+            employee.address.country = req.body.country || employee.address.country
+            employee.address.pincode = req.body.pincode || employee.address.pincode
+            employee.dob = req.body.dob || employee.dob
+            employee.doj = req.body.doj || employee.doj
+            employee.salary = Number(req.body.salary) || employee.salary
+            employee.allowances.set("da", Number(req.body.da) || employee.allowances.get("da"))
+            employee.allowances.set("bonus", Number(req.body.bonus) || employee.allowances.get("bonus"))
+
+            employee.save()
+                .then(employee => { return res.send({ success: true, msg: "Employee Updated", document: employee }) })
+                .catch(err => { return res.status(202).send({ success: false, msg: "Error in update", document: err.message }) })
+        })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Employee does not exist", document: err.message }) })
 })
 
 app.get("/api/employee/delete", (req, res) => {
@@ -656,214 +554,148 @@ app.get("/api/employee/delete/:name", async (req, res) => {
         return res.status(202).send({ success: false, msg: "Employee does not exists", document: null })
     }
 })
-//customer
-//=============================================================================================================================================================================================================================
 
+
+//Customer
+//=============================================================================================================================================================================================================================
 app.get("/api/customer", (req, res) => {
-    let table = Table.find({}, (err, table) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error Occured", document: null })
-        else return res.send({ success: true, msg: "Data Found", document: table })
-    })
+    Customer.find({})
+        .then(table => { return res.status(202).send({ success: true, msg: "Data Found", document: table }) })
+        .catch(err => { return res.send({ success: true, msg: "Error Occured", document: err.message }) })
 })
 
 app.post("/api/customer/new", async (req, res) => {
     let customer = new Customer({
-        name :{
-            first:req.body.first,
-            last:req.body.last
+        name: {
+            first: req.body.first,
+            last: req.body.last
         },
         email: req.body.email,
         contact: req.body.contact,
-        gender:req.body.gender,
-        dates:{
-            dob:req.body.dob,
-            aob:req.body.aob
+        gender: req.body.gender,
+        dates: {
+            dob: req.body.dob,
+            doa: req.body.doa
         },
         status: req.body.status || "inactive",
     })
 
-    if (! await customer.exists()) {
-        customer.save((err, table) => {
-            if (err) return res.status(202).send({ success: false, msg: "Error in creation!", document: null })
-            else return res.send({ success: true, msg: "Success !", document: customer })
-        })
+    if (!await customer.exists()) {
+        customer.save()
+            .then(customer => { return res.send({ success: true, msg: "Customer added", document: customer }) })
+            .catch(err => { return res.status(202).send({ success: false, msg: "Error in creation!", document: err.message }) })
     } else {
         return res.status(202).send({ success: false, msg: "Customer already exists !", document: null })
     }
 })
 
-get("/apiapp/customer/delete", (req, res) => {
 
-    Customer.deleteMany({}, (err, customer) => {
-        if (err) {
-            return res.status(202).send({ success: false, msg: "Error in Deletion !", document: customer })
-        }
-        else {
-            Customer.deleteMany({}, (err, customer) => {
-                if (err) return res.status(202).send({ success: false, msg: "Erro in Customer Deletion" })
-                                })
-                }
-            })
-            return res.send({ success: true, msg: "Customer Deleted !", document: customer })
-        }
-    )
+app.post("/api/customer/update", (req, res) => {
+    Customer.findById(req.body.customerId)
+        .then(async customer => {
 
+            let cust2 = Customer.findOne({ email: req.body.email })
 
+            if (cust2 != null && cust2._id.toString() != customer._id.toString()) {
+                return res.status(202).send({ success: false, msg: "Email already exists", document: null })
+            }
 
-app.get("/api/customer/delete/:name", async (req, res) => {
-
-    let customer = new Customer({ name: req.params.name })
-
-    if (await customer.exists()) {
-        console.log("Customer ID : " + await customer.getId())
-        deleteCustomerId(await customer.getId());
-
-        let result = await customer.delete();
-
-        if (result) {
-            res.send({ success: true, msg: "Customer Deleted", document: result })
-        }
-        else {
-            res.status(202).send({ success: false, msg: "Error in deletion", document: null })
-        }
-    }
-    else {
-        return res.status(202).send({ success: false, msg: "Customer         Does Not Exist !", document: null })
-    }
-})
-
-
-
-
-
-
-
-
-// Customer 
-// ==========================================================================================================================================
-
-app.post("/api/customer/update/:name", (req, res) => {
-    let customerName = req.params.name;
-
-    Customer.find({ name: customerName }, (err, customer) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error in Updation!", document: null })
-        else {
-
-            if (customer.length < 1) return res.status(202).send({ success: false, msg: "Cuisine Does Not Exist !" })
-
-            customer = customer[0]
-
-            customer.name = req.body.name || customer.name
+            customer.name.set("first", req.body.first || customer.name.get("first"))
+            customer.name.set("last", req.body.last || customer.name.get("last"))
             customer.email = req.body.email || customer.email
             customer.contact = req.body.contact || customer.contact
             customer.gender = req.body.gender || customer.gender
-            customer.dates = req.body.dates || customer.dates
+            customer.dates.set("dob", req.body.dob || customer.dates.get("dob"))
+            customer.dates.set("doa", req.body.doa || customer.dates.get("doa"))
             customer.status = req.body.status || customer.status
 
-            customer.save((err, customer) => {
-                if (err) return res.status(202).send({ success: false, msg: "Error in Updation", document: customer })
-                else return res.send({ success: true, msg: "Customer details updated !", document: customer })
-            })
-        }
-    })
+            customer.save()
+                .then(c => { return res.send({ success: true, msg: "Customer details updated", document: c }) })
+                .catch(err => { return res.status(202).send({ success: false, msg: "Error Occured", document: err.message }) })
+        })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Customer Does Not Exist !", document: err.message }) })
 })
+
+app.get("/api/customer/delete", (req, res) => {
+    Customer.deleteMany({})
+        .then(doc => { return res.send({ success: true, msg: "Deleted", document: doc }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error in deletion", document: err.message }) })
+})
+
+app.get("/api/customer/delete/:customerId", (req, res) => {
+    Customer.findById(req.params.customerId)
+        .then(async customer => {
+            let result = await customer.delete();
+
+            if (result) {
+                res.send({ success: true, msg: "Customer Deleted", document: result })
+            }
+            else {
+                res.status(202).send({ success: false, msg: "Error in deletion", document: err.message })
+            }
+        })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Customer Does Not Exist !", document: err.message }) })
+})
+
 
 //Table
 //===============================================================================================================================================================================================
-
 app.get("/api/table", (req, res) => {
-    let table = Table.find({}, (err, table) => {
-        if (err) return res.status(202).send({ success: false, msg: "Error Occured", document: null })
-        else return res.send({ success: true, msg: "Data Found", document: table })
-    })
+    Table.find({})
+        .then(table => { return res.send({ success: true, msg: "Data Found", document: table }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error Occured", document: err.message }) })
 })
 
 app.post("/api/table/new", async (req, res) => {
     let table = new Table({
-        tableNo: req.body.tableNo,
-        noSeat: req.body.noSeat,
+        tableNo: Number(req.body.tableNo),
+        noOfSeat: Number(req.body.noOfSeat),
         status: req.body.status || "inactive",
     })
 
-    if (! await table.exists()) {
-        table.save((err, table) => {
-            if (err) return res.status(202).send({ success: false, msg: "Error in creation!", document: null })
-            else return res.send({ success: true, msg: "Success !", document: table })
-        })
+    if (!await table.exists()) {
+        table.save()
+            .then(table => { return res.send({ success: true, msg: "Table created", document: table }) })
+            .catch(err => { return res.status(202).send({ success: false, msg: "Error in creation!", document: err.message }) })
     } else {
-        return res.status(202).send({ success: false, msg: "Table already exists !", document: null })
+        return res.status(202).send({ success: false, msg: "Table number already exists !", document: null })
     }
 })
 
+app.put("/api/table/update/", async (req, res) => {
+    Table.findById(req.body.tableId)
+        .then(table => {
+            table.noOfSeat = req.body.noOfSeat || table.noOfSeat
+            table.status = req.body.status || table.status
+
+            table.save()
+                .then(tbl => { return res.status(202).send({ success: false, msg: "Table details updateds", document: tbl }) })
+                .catch(err => { return res.status(202).send({ success: false, msg: "Error in update", document: err.message }) })
+        })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Table does not exists", document: err.message }) })
+})
 
 app.get("/api/table/delete", (req, res) => {
-
-    Table.deleteMany({}, (err, table) => {
-        if (err) {
-            return res.status(202).send({ success: false, msg: "Error in Deletion !", document: table })
-        }
-        else {
-            table.deleteMany({}, (err, table) => {
-                if (err) return res.status(202).send({ success: false, msg: "Erro in table Deletion" })
-               
-            })
-            return res.send({ success: true, msg: "table Deleted !", document: table })
-        }
-    })
-
+    Table.deleteMany({})
+        .then(tables => { return res.send({ success: true, msg: "Tables deleted", document: tables }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error occured", document: err.message }) })
 })
 
-app.get("/api/table/delete/:tableNo", async (req, res) => {
-
-    let table = new Table({ name: req.params.name })
-
-    if (await table.exists()) {
-        console.log("Table ID : " + await table.getId())
-
-        let result = await table.delete();
-
-        if (result) {
-            res.send({ success: true, msg: "Table Deleted", document: result })
-        }
-        else {
-            res.status(202).send({ success: false, msg: "Error in deletion", document: null })
-        }
-    }
-    else {
-        return res.status(202).send({ success: false, msg: "Table Does Not Exist !", document: null })
-    }
+app.get("/api/table/delete/:tableId", (req, res) => {
+    Table.findById(req.params.tableId)
+        .then(async table => {
+            let result = await table.delete()
+            
+            if (result) {
+                res.send({ success: true, msg: "Table Deleted", document: result })
+            }
+            else {
+                res.status(202).send({ success: false, msg: "Error in deletion", document: null })
+            }
+        })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Table Does Not Exist !", document: err.message }) })
 })
-app.post("/api/table/update/:tableNo", async (req, res) => {
 
-    let tableNo = req.body.tableNo;
-
-    if (await new Item({ tableNo: req.params.tableNo }).exists()) {
-
-        let table = new Table({ name: tableNo })
-
-        if (await table.exists() || table.tableNo == null) {
-
-            Table.findOne({ name: req.params.tableNo }, async (err, item) => {
-                Table.noSeat = req.body.noSeat || table.noSeat            
-                //item.subCategoryId = (subCategory != null) ? await subCategory.getId() : item.subCategoryId;
-                table.status = req.body.status || table.status
-
-                table.save((err, table) => {
-                    if (err) return res.status(202).send({ success: false, msg: "Error in Update", document: null })
-
-                    return res.send({ success: true, msg: "table Updated", document: table   })
-                })
-            })
-
-        }
-        else {
-            return res.status(202).send({ success: false, msg: "Sub Category Does Not Exist !", document: null })
-        }
-    }
-    else {
-        return res.status(202).send({ success: false, msg: "Item Does Not Exist !", document: null })
-    }
-})
 
 //orders
 //==============================================================================================================================================================================
@@ -892,52 +724,8 @@ app.post("/api/order/new", async (req, res) => {
 
     let amount = 0
     let orderItems = req.body.orderItems
-    
+
     orderItems.forEach(item => {
         console.log(item)
     })
-
-    // let order = new Order({
-    //     customerId : await customer.getId(),
-    //     employeeId : await employee.getId(),
-    //     tableId : await table.getId(),
-    //     orderDate : new Date(),
-    //     items : orderItems,
-    //     amount : amount
-
-    // })
-
-    // order.save()
-    //     .then(order => { return res.send({ success: true, msg: "Order saved", document: order }) })
-    //     .catch(err => { return res.status(202).send({ success: false, msg: "Error in Order creation", document: err.message }) })
 })
-
-app.get("/api/order/delete/:name", async (req, res) => {
-    let order = new Order({ name: req.params._id })
-
-    if (await category.exists()) {
-
-        deleteSubCategoryByOederId(await order.getId())
-
-        let result = await order.delete()
-
-        if (result) {
-            return res.status(202).send({ success: true, msg: "Order Deleted", document: result })
-        }
-        else {
-            return res.status(202).send({ success: false, msg: "Error in Deletion", document: null })
-        }
-    }
-    else {
-        return res.status(202).send({ success: false, msg: "Order Does Not Exist !", document: null })
-    }
-})
-
-function deleteAllOrder() {
-    Order.deleteMany({}, (err, order) => {
-        if (err) return false
-        else return true
-    })
-}
-
-
