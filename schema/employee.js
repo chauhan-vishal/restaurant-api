@@ -5,7 +5,7 @@ const addressSchema = mongoose.Schema({
     city: String,
     state: String,
     country: String,
-    pincode: Strings
+    pincode: String
 })
 
 const employeeSchema = mongoose.Schema({

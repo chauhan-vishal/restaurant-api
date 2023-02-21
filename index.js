@@ -20,6 +20,191 @@ const Table = require("./schema/table");
 const Customer = require("./schema/customer");
 const e = require("express");
 
+// ====================================================================================================================================
+// Swagger
+
+const swaggerJSDoc = require("swagger-jsdoc")
+const swaggerUi = require("swagger-ui-express")
+
+const options = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: "Node JS API Project for Restaurant API",
+            version: "1.0.0"
+        },
+        servers: [
+            {
+                url: "http://localhost:2503/"
+            }
+        ]
+    },
+    apis: ['./index.js']
+}
+
+const swaggerSpec = swaggerJSDoc(options)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+
+/**
+ * @swagger
+ * components :
+ *      schema :
+ *          Category : 
+ *              type : object
+ *              properties :
+ *                  categoryId:
+ *                      type : string
+ *                  name : 
+ *                      type : string
+ *                  desc : 
+ *                      type : string
+ *                  status : 
+ *                      type : string
+ * 
+ *          Cuisine : 
+ *              type : object
+ *              properties :
+ *                  cuisineId:
+ *                      type : string
+ *                  categoryId:
+ *                      type : string
+ *                  name : 
+ *                      type : string
+ *                  desc : 
+ *                      type : string
+ *                  status : 
+ *                      type : string
+ * 
+ *          SubCategory:
+ *              type : object
+ *              properties :
+ *                  subCategoryId:
+ *                      type : string
+ *                  cuisineId:
+ *                      type : string
+ *                  name : 
+ *                      type : string
+ *                  desc : 
+ *                      type : string
+ *                  status : 
+ *                      type : string
+ * 
+ *          Item :
+ *              type : object
+ *              properties :
+ *                  itemId:
+ *                      type : string
+ *                  subCategoryId:
+ *                      type : string
+ *                  name : 
+ *                      type : string
+ *                  desc : 
+ *                      type : string
+ *                  status : 
+ *                      type : string
+ *                  price :
+ *                      type : integer
+ *                  qty : 
+ *                      type : integer
+ * 
+ *          Department :
+ *              type : object
+ *              properties :
+ *                  departmentId :
+ *                      type : string
+ *                  name : 
+ *                      type : string
+ *                  desc : 
+ *                      type : string
+ *                  status :
+ *                      type : string
+ * 
+ *          Employee:
+ *              type : object
+ *              properties : 
+ *                  employeeId :
+ *                      type : string
+ *                  departmentId :
+ *                      type : string
+ *                  first :
+ *                      type : string
+ *                  last :
+ *                      type : string
+ *                  gender :
+ *                      type : string
+ *                  contact :
+ *                      type : string
+ *                  email :
+ *                      type : string
+ *                  street :
+ *                      type : string
+ *                  city :
+ *                      type : string
+ *                  state :
+ *                      type : string
+ *                  country :
+ *                      type : string
+ *                  pincode :
+ *                      type : string
+ *                  dob :
+ *                      type : string
+ *                  doj :
+ *                      type : string
+ *                  salary :
+ *                      type : string
+ *                  da :
+ *                      type : string
+ *                  bonus :
+ *                      type : string
+ * 
+ * 
+ *          Customer:
+ *              type : object
+ *              properties :
+ *                  customerId :
+ *                      type : string
+ *                  first : 
+ *                      type : string
+ *                  last: 
+ *                      type : string
+ *                  email: 
+ *                      type : string
+ *                  contact: 
+ *                      type : string
+ *                  gender: 
+ *                      type : string
+ *                  dob: 
+ *                      type : string
+ *                  doa: 
+ *                      type : string
+ *                  status: 
+ *                      type : string
+ * 
+ *          Table :
+ *              type : object
+ *              properties :
+ *                  tableId :
+ *                      type : string
+ *                  tableNo : 
+ *                      type : string
+ *                  noOfSeat : 
+ *                      type : string
+ *                  status :
+ *                      type : string
+ */
+
+// ====================================================================================================================================
+
+/**
+ * @swagger
+ * /:
+ *  get :
+ *      summary: This api is used to check if get method is working or not
+ *      description: This api is used to check if get method is working or not
+ *      responses:
+ *          200:
+ *              description : To test Get method
+ */
 app.get("/", (req, res) => {
     res.send("Welcome !")
 })
@@ -27,12 +212,66 @@ app.get("/", (req, res) => {
 
 // Category
 // ==================================================================================================================================
+/**
+ * @swagger
+ * /api/category:
+ *  get : 
+ *      summary : To get all categories from database
+ *      description : This api is used to fetch all categories data from database
+ *      responses :
+ *          200 : 
+ *              description : This api is used to fetch all categories data from database
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              documents : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Category"
+ *          202 : 
+ *              description : This response is wrong
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              documents : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Category"
+ *  */
 app.get("/api/category", (req, res) => {
     Category.find({})
         .then(categories => { return res.send({ success: true, msg: "Data Found", document: categories }) })
         .catch(err => { return res.status(202).send({ success: false, msg: "Error Occured", document: err.message }) })
 })
 
+/**
+ * @swagger
+ * /api/category/new:
+ *  post : 
+ *      summary : This api is used to add new category details in database
+ *      description : This api is used to add new category details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Category"
+ *      responses :
+ *          200 : 
+ *              description : Added Successfully
+ *  */
 app.post("/api/category/new", async (req, res) => {
     let category = new Category({
         name: req.body.name,
@@ -49,7 +288,25 @@ app.post("/api/category/new", async (req, res) => {
     }
 })
 
-app.post("/api/category/update/", async (req, res) => {
+/**
+ * @swagger
+ * /api/category/update:
+ *  put : 
+ *      summary : This api is used to update category details in database
+ *      description : This api is used to updaet category details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Category"
+ *      responses :
+ *          200 : 
+ *              description : Added Successfully
+ *          202 :
+ *              description : Error
+ *  */
+app.put("/api/category/update/", async (req, res) => {
     let categoryId = req.body.categoryId;
     Category.findById(categoryId)
         .then(async category => {
@@ -57,7 +314,7 @@ app.post("/api/category/update/", async (req, res) => {
             let c = await Category.findOne({ name: req.body.name })
 
             if (c != null && c._id.toString() != category._id.toString()) {
-                return res.send({ success: false, msg: "Category name already exists", document: null })
+                return res.status(202).send({ success: false, msg: "Category name already exists", document: null })
             }
 
             category.name = req.body.name || category.name
@@ -71,7 +328,18 @@ app.post("/api/category/update/", async (req, res) => {
         .catch(err => { return res.status(202).send({ success: false, msg: "Category Does Not Exist !", document: err.message }) })
 })
 
-app.get("/api/category/delete", (req, res) => {
+
+/**
+ * @swagger
+ * /api/category/delete:
+ *  delete : 
+ *      summary : This api is used to delete all documents from database.
+ *      description : This api is used to delete all documents from database.
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+app.delete("/api/category/delete", (req, res) => {
     Category.deleteMany({})
         .then(categorys => {
             Cuisine.deleteMany({})
@@ -90,7 +358,25 @@ app.get("/api/category/delete", (req, res) => {
         .catch(err => { return res.status(202).send({ success: false, msg: "Error in Category Deletion !", document: err.message }) })
 })
 
-app.get("/api/category/delete/:categoryId", (req, res) => {
+
+/**
+ * @swagger
+ * /api/category/delete/{id}:
+ *  delete : 
+ *      summary : This api is used to delete document with given ID from database.
+ *      description : This api is used to delete document with given ID from database.
+ *      parameters : 
+ *          - in : path
+ *            name : id
+ *            required : true
+ *            description : Category ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+app.delete("/api/category/delete/:categoryId", (req, res) => {
     Category.findById(req.params.categoryId)
         .then(async category => {
             deleteCuisineByCategoryId(category._id);
@@ -110,12 +396,51 @@ app.get("/api/category/delete/:categoryId", (req, res) => {
 
 // Cuisine
 // ==================================================================================================================================
+/**
+ * @swagger
+ * /api/cuisine:
+ *  get :
+ *      summary : This api is used to get all cuisine details from database
+ *      description : 
+ *      responses : 
+ *          200 :
+ *              description : This api gets all document from cuisine table
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Cuisine" 
+ * */
 app.get("/api/cuisine", (req, res) => {
     Cuisine.find({})
         .then(cuisines => { return res.send({ success: true, msg: "Data Found", document: cuisines }) })
         .catch(err => { return res.status(202).send({ success: false, msg: "Error Occured", document: err.message }) })
 })
 
+/**
+ * @swagger
+ * /api/cuisine/new:
+ *  post : 
+ *      summary : This api is used to add new cuisine details in database
+ *      description : This api is used to add new cuisine details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Cuisine"
+ *      responses :
+ *          200 : 
+ *              description : Added Successfully
+ *  */
 app.post("/api/cuisine/new", async (req, res) => {
     let cuisine = new Cuisine({
         name: req.body.name,
@@ -139,7 +464,37 @@ app.post("/api/cuisine/new", async (req, res) => {
     }
 })
 
-app.post("/api/cuisine/update/", async (req, res) => {
+
+/**
+ * @swagger
+ * /api/cuisine/update:
+ *  put : 
+ *      summary : This api is used to update cuisine details in database
+ *      description : This api is used to updaet cuisine details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Cuisine"
+ *      responses :
+ *          200 : 
+ *              description : Updated Successfully
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Cuisine"
+ *  */
+app.put("/api/cuisine/update/", async (req, res) => {
     Cuisine.findById(req.body.cuisineId)
         .then(async cuisine => {
             let c = await Cuisine.findOne({ name: req.body.name })
@@ -166,13 +521,42 @@ app.post("/api/cuisine/update/", async (req, res) => {
 
 })
 
-app.get("/api/cuisine/delete", (req, res) => {
+
+/**
+ * @swagger
+ * /api/cuisine/delete:
+ *  delete : 
+ *      summary : This api is used to delete all documents from database.
+ *      description : This api is used to delete all documents from database.
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+app.delete("/api/cuisine/delete", (req, res) => {
     Cuisine.deleteMany({})
         .then(categories => { return res.send({ success: true, msg: "Categories Deleted !", document: categories }) })
         .catch(err => { return res.status(202).send({ success: false, msg: "Error in Deletion !", document: err.message }) })
 })
 
-app.get("/api/cuisine/delete/:cuisineId", async (req, res) => {
+
+/**
+ * @swagger
+ * /api/cuisine/delete/{id}:
+ *  delete : 
+ *      summary : This api is used to delete document with given ID from database.
+ *      description : This api is used to delete document with given ID from database.
+ *      parameters : 
+ *          - in : path
+ *            name : id
+ *            required : true
+ *            description : Cuisine ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+app.delete("/api/cuisine/delete/:cuisineId", async (req, res) => {
 
     Cuisine.findById(req.params.cuisineId)
         .then(cuisine => {
@@ -197,14 +581,53 @@ async function deleteCuisineByCategoryId(categoryId) {
 
 // Sub Category
 // ================================================================================================================================
+/**
+ * @swagger
+ * /api/sub-category/:
+ *  get :
+ *      summary : This api is used to get all sub category details from database
+ *      description : 
+ *      responses : 
+ *          200 :
+ *              description : This api gets all document from sub category table
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/SubCategory" 
+ * */
 app.get("/api/sub-category/", (req, res) => {
     SubCategory.find({})
         .then(subCategories => { return res.send({ success: true, msg: "Data Found", document: subCategories }) })
         .catch(err => { return res.status(202).send({ success: false, msg: "Error Occured", document: err.message }) })
 })
 
-app.post("/api/sub-category/new", async (req, res) => {
 
+/**
+ * @swagger
+ * /api/sub-category/new:
+ *  post : 
+ *      summary : This api is used to add new sub category details in database
+ *      description : This api is used to add new sub category details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/SubCategory"
+ *      responses :
+ *          200 : 
+ *              description : Added Successfully
+ *  */
+app.post("/api/sub-category/new", async (req, res) => {
     let subCategory = new SubCategory({
         name: req.body.name,
         desc: req.body.desc,
@@ -228,7 +651,36 @@ app.post("/api/sub-category/new", async (req, res) => {
     }
 })
 
-app.post("/api/sub-category/update/", (req, res) => {
+/**
+ * @swagger
+ * /api/sub-category/update:
+ *  put : 
+ *      summary : This api is used to update sub category details in database
+ *      description : This api is used to update sub category details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/SubCategory"
+ *      responses :
+ *          200 : 
+ *              description : Updated Successfully
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/SubCategory"
+ *  */
+app.put("/api/sub-category/update/", (req, res) => {
     SubCategory.findById(req.body.subCategoryId)
         .then(async subCategory => {
 
@@ -254,7 +706,18 @@ app.post("/api/sub-category/update/", (req, res) => {
         .catch(err => { return res.status(202).send({ success: false, msg: "Sub Category does not exist", document: err.message }) })
 })
 
-app.get("/api/sub-category/delete", (req, res) => {
+
+/**
+ * @swagger
+ * /api/sub-category/delete:
+ *  delete : 
+ *      summary : This api is used to delete all documents from database.
+ *      description : This api is used to delete all documents from database.
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+app.delete("/api/sub-category/delete", (req, res) => {
     SubCategory.deleteMany({}, (err, subCategories) => {
         if (err) return res.status(202).send({ success: false, msg: "Error", document: subCategories })
 
@@ -262,7 +725,24 @@ app.get("/api/sub-category/delete", (req, res) => {
     })
 })
 
-app.get("/api/sub-category/delete/:subCategoryId", async (req, res) => {
+/**
+ * @swagger
+ * /api/sub-category/delete/{id}:
+ *  delete : 
+ *      summary : This api is used to delete document with given ID from database.
+ *      description : This api is used to delete document with given ID from database.
+ *      parameters : 
+ *          - in : path
+ *            name : id
+ *            required : true
+ *            description : Sub Category ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+app.delete("/api/sub-category/delete/:subCategoryId", async (req, res) => {
     SubCategory.findById(req.params.subCategoryId)
         .then(subCategory => {
             deleteItemsBySubCategoryId(subCategory._id)
@@ -286,17 +766,58 @@ async function deleteSubCategoryByCuisineId(cuisineId) {
 
 // item
 // ==============================================================================================================================================
+/**
+ * @swagger
+ * /api/item/:
+ *  get :
+ *      summary : This api is used to get all item details from database
+ *      description : 
+ *      responses : 
+ *          200 :
+ *              description : This api gets all document from item table
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Item" 
+ * */
 app.get("/api/item", (req, res) => {
     Item.find({})
         .then(item => { return res.send({ success: true, msg: "Data Found", document: item }) })
         .catch(err => { return res.status(202).send({ success: false, msg: "Error !", document: item }) })
 })
 
+/**
+ * @swagger
+ * /api/item/new:
+ *  post : 
+ *      summary : This api is used to add new item details in database
+ *      description : This api is used to add new item details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Item"
+ *      responses :
+ *          200 : 
+ *              description : Added Successfully
+ *  */
 app.post("/api/item/new", async (req, res) => {
     let item = new Item({
         name: req.body.name,
         desc: req.body.desc,
         status: req.body.status || "inactive",
+        price: req.body.price,
+        qty: req.body.qty
     })
 
     if (!await item.exists()) {
@@ -305,8 +826,8 @@ app.post("/api/item/new", async (req, res) => {
                 item.subCategoryId = subCategory._id
 
                 item.save()
-                    .then(item => { res.send({ success: true, msg: "Sub Category Created !", document: item }) })
-                    .catch(err => { return res.status(202).send({ success: false, msg: "Error in creation !", document: item }) })
+                    .then(item => { res.send({ success: true, msg: "Item Created !", document: item }) })
+                    .catch(err => { return res.status(202).send({ success: false, msg: "Error in creation !", document: err.message }) })
             })
             .catch(err => { return res.status(202).send({ success: false, msg: "Sub Category Does Not Exist !", document: err.message }) })
     }
@@ -315,7 +836,36 @@ app.post("/api/item/new", async (req, res) => {
     }
 })
 
-app.post("/api/item/update/", (req, res) => {
+/**
+ * @swagger
+ * /api/item/update:
+ *  put : 
+ *      summary : This api is used to update item details in database
+ *      description : This api is used to update item details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Item"
+ *      responses :
+ *          200 : 
+ *              description : Updated Successfully
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Item"
+ *  */
+app.put("/api/item/update/", (req, res) => {
     Item.findById(req.body.itemId)
         .then(async item => {
 
@@ -325,30 +875,61 @@ app.post("/api/item/update/", (req, res) => {
                 return res.send({ success: false, msg: "Item name already exists", document: item2 })
             }
 
-            SubCategory.findById(req.body.subCategoryId)
-                .then(subCategory => {
-                    item.name = req.body.name || item.name
-                    item.desc = req.body.desc || item.desc
-                    item.status = req.body.status || item.status
-                    item.subCategoryId = subCategory._id
+            if (req.body.subCategoryId) {
+                SubCategory.findById(req.body.subCategoryId)
+                    .then(subCategory => {
+                        item.subCategoryId = subCategory._id
+                    })
+                    .catch(err => { return res.send({ success: false, msg: "Sub Category does not exist", document: err.message }) })
+            }
+            
+            item.name = req.body.name || item.name
+            item.desc = req.body.desc || item.desc
+            item.status = req.body.status || item.status
 
-                    item.save()
-                        .then(item => { return res.send({ success: true, msg: "Item details updated", document: item }) })
-                        .catch(err => { return res.send({ success: false, msg: "Error in Update", document: err.message }) })
-                })
-                .catch(err => { return res.send({ success: false, msg: "Sub Category does not exist", document: err.message }) })
-
+            item.save()
+                .then(item => { return res.send({ success: true, msg: "Item details updated", document: item }) })
+                .catch(err => { return res.send({ success: false, msg: "Error in Update", document: err.message }) })
         })
         .catch(err => { return res.status(202).send({ success: false, msg: "Item does not exist", document: err.message }) })
 })
 
-app.get("/api/item/delete", (req, res) => {
+
+/**
+ * @swagger
+ * /api/item/delete:
+ *  delete : 
+ *      summary : This api is used to delete all documents from database.
+ *      description : This api is used to delete all documents from database.
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+app.delete("/api/item/delete", (req, res) => {
     Item.deleteMany()
         .then(result => { return res.send({ success: true, msg: "Items Deleted !", document: result }) })
         .catch(err => { return res.status(202).send({ success: false, msg: "Error", document: err.message }) })
 })
 
-app.get("/api/item/delete/:itemId", (req, res) => {
+
+/**
+ * @swagger
+ * /api/item/delete/{id}:
+ *  delete : 
+ *      summary : This api is used to delete document with given ID from database.
+ *      description : This api is used to delete document with given ID from database.
+ *      parameters : 
+ *          - in : path
+ *            name : id
+ *            required : true
+ *            description : Item ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+app.delete("/api/item/delete/:itemId", (req, res) => {
     Item.findById(req.params.itemId)
         .then(async item => {
             let result = await item.delete()
@@ -369,12 +950,51 @@ async function deleteItemsBySubCategoryId(subCategoryId) {
 
 // Department
 // ==================================================================================================================
+/**
+ * @swagger
+ * /api/department/:
+ *  get :
+ *      summary : This api is used to get all department details from database
+ *      description : 
+ *      responses : 
+ *          200 :
+ *              description : This api gets all document from department table
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Department" 
+ * */
 app.get("/api/department", (req, res) => {
     Department.find()
         .then(departments => { return res.send({ success: true, msg: "Data Found", document: departments }) })
         .catch(err => { return res.status(202).send({ success: false, msg: "Departments not found!", document: err.message }) })
 })
 
+/**
+ * @swagger
+ * /api/department/new:
+ *  post : 
+ *      summary : This api is used to add new department details in database
+ *      description : This api is used to add new department details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Department"
+ *      responses :
+ *          200 : 
+ *              description : Added Successfully
+ *  */
 app.post("/api/department/new", async (req, res) => {
     let department = new Department({
         name: req.body.name,
@@ -391,6 +1011,35 @@ app.post("/api/department/new", async (req, res) => {
     }
 })
 
+/**
+ * @swagger
+ * /api/department/update:
+ *  put : 
+ *      summary : This api is used to update department details in database
+ *      description : This api is used to update department details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Department"
+ *      responses :
+ *          200 : 
+ *              description : Updated Successfully
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Department"
+ *  */
 app.put("/api/department/update", async (req, res) => {
     Department.findById(req.body.departmentId)
         .then(async department => {
@@ -411,7 +1060,17 @@ app.put("/api/department/update", async (req, res) => {
         .catch(err => { return res.status(202).send({ success: false, msg: "Department does not exist", document: err.message }) })
 })
 
-app.get("/api/department/delete", (req, res) => {
+/**
+ * @swagger
+ * /api/department/delete:
+ *  delete : 
+ *      summary : This api is used to delete all documents from database.
+ *      description : This api is used to delete all documents from database.
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+app.delete("/api/department/delete", (req, res) => {
     Department.deleteMany()
         .then(result => {
             Employee.deleteMany({})
@@ -420,7 +1079,24 @@ app.get("/api/department/delete", (req, res) => {
         .catch(err => { return res.status(202).send({ success: false, msg: "Error in Deletion!", document: err.message }) })
 })
 
-app.get("/api/department/delete/:departmentId", async (req, res) => {
+/**
+ * @swagger
+ * /api/department/delete/{id}:
+ *  delete : 
+ *      summary : This api is used to delete document with given ID from database.
+ *      description : This api is used to delete document with given ID from database.
+ *      parameters : 
+ *          - in : path
+ *            name : id
+ *            required : true
+ *            description : Department ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+app.delete("/api/department/delete/:departmentId", async (req, res) => {
     Department.findById(req.params.departmentId)
         .then(async department => {
 
@@ -447,12 +1123,51 @@ app.get("/api/department/delete/:departmentId", async (req, res) => {
 
 // Employee
 // =================================================================================================================================
+/**
+ * @swagger
+ * /api/employee/:
+ *  get :
+ *      summary : This api is used to get all employee details from database
+ *      description : 
+ *      responses : 
+ *          200 :
+ *              description : This api gets all document from employee table
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Employee" 
+ * */
 app.get("/api/employee/", (req, res) => {
     Employee.find({})
         .then(emp => { return res.send({ success: true, msg: "Employee found", document: emp }) })
         .catch(err => { return res.status(202).send({ success: false, msg: "Error Occred", document: err.msg }) })
 })
 
+/**
+ * @swagger
+ * /api/employee/new:
+ *  post : 
+ *      summary : This api is used to add new employee details in database
+ *      description : This api is used to add new employee details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Employee"
+ *      responses :
+ *          200 : 
+ *              description : Added Successfully
+ *  */
 app.post("/api/employee/new", async (req, res) => {
     let employee = new Employee({
         name: {
@@ -493,6 +1208,35 @@ app.post("/api/employee/new", async (req, res) => {
     }
 })
 
+/**
+ * @swagger
+ * /api/employee/update:
+ *  put : 
+ *      summary : This api is used to update employee details in database
+ *      description : This api is used to update employee details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Employee"
+ *      responses :
+ *          200 : 
+ *              description : Updated Successfully
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Employee"
+ *  */
 app.put("/api/employee/update", async (req, res) => {
     Employee.findById(req.body.employeeId)
         .then(async employee => {
@@ -533,13 +1277,40 @@ app.put("/api/employee/update", async (req, res) => {
         .catch(err => { return res.status(202).send({ success: false, msg: "Employee does not exist", document: err.message }) })
 })
 
-app.get("/api/employee/delete", (req, res) => {
+/**
+ * @swagger
+ * /api/employee/delete:
+ *  delete : 
+ *      summary : This api is used to delete all documents from database.
+ *      description : This api is used to delete all documents from database.
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+app.delete("/api/employee/delete", (req, res) => {
     Employee.deleteMany({})
         .then(emp => { return res.send({ success: true, msg: "Employees deleted", document: emp }) })
         .catch(err => { return res.status(202).send({ success: false, msg: "Error in deletion", document: err.message }) })
 })
 
-app.get("/api/employee/delete/:name", async (req, res) => {
+/**
+ * @swagger
+ * /api/employee/delete/{id}:
+ *  delete : 
+ *      summary : This api is used to delete document with given ID from database.
+ *      description : This api is used to delete document with given ID from database.
+ *      parameters : 
+ *          - in : path
+ *            name : id
+ *            required : true
+ *            description : Department ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+app.delete("/api/employee/delete/:name", async (req, res) => {
     let employee = new Employee({ email: req.params.name })
 
     if (await employee.exists()) {
@@ -558,12 +1329,51 @@ app.get("/api/employee/delete/:name", async (req, res) => {
 
 //Customer
 //=============================================================================================================================================================================================================================
+/**
+ * @swagger
+ * /api/customer/:
+ *  get :
+ *      summary : This api is used to get all customer details from database
+ *      description : 
+ *      responses : 
+ *          200 :
+ *              description : This api gets all document from customer table
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Customer" 
+ * */
 app.get("/api/customer", (req, res) => {
     Customer.find({})
         .then(table => { return res.status(202).send({ success: true, msg: "Data Found", document: table }) })
         .catch(err => { return res.send({ success: true, msg: "Error Occured", document: err.message }) })
 })
 
+/**
+ * @swagger
+ * /api/customer/new:
+ *  post : 
+ *      summary : This api is used to add new customer details in database
+ *      description : This api is used to add new customer details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Customer"
+ *      responses :
+ *          200 : 
+ *              description : Added Successfully
+ *  */
 app.post("/api/customer/new", async (req, res) => {
     let customer = new Customer({
         name: {
@@ -589,8 +1399,36 @@ app.post("/api/customer/new", async (req, res) => {
     }
 })
 
-
-app.post("/api/customer/update", (req, res) => {
+/**
+ * @swagger
+ * /api/customer/update:
+ *  put : 
+ *      summary : This api is used to update customer details in database
+ *      description : This api is used to update customer details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Customer"
+ *      responses :
+ *          200 : 
+ *              description : Updated Successfully
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Customer"
+ *  */
+app.put("/api/customer/update", (req, res) => {
     Customer.findById(req.body.customerId)
         .then(async customer => {
 
@@ -616,12 +1454,39 @@ app.post("/api/customer/update", (req, res) => {
         .catch(err => { return res.status(202).send({ success: false, msg: "Customer Does Not Exist !", document: err.message }) })
 })
 
-app.get("/api/customer/delete", (req, res) => {
+/**
+ * @swagger
+ * /api/customer/delete:
+ *  delete : 
+ *      summary : This api is used to delete all documents from database.
+ *      description : This api is used to delete all documents from database.
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+app.delete("/api/customer/delete", (req, res) => {
     Customer.deleteMany({})
         .then(doc => { return res.send({ success: true, msg: "Deleted", document: doc }) })
         .catch(err => { return res.status(202).send({ success: false, msg: "Error in deletion", document: err.message }) })
 })
 
+/**
+ * @swagger
+ * /api/customer/delete/{id}:
+ *  delete : 
+ *      summary : This api is used to delete document with given ID from database.
+ *      description : This api is used to delete document with given ID from database.
+ *      parameters : 
+ *          - in : path
+ *            name : id
+ *            required : true
+ *            description : Customer ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
 app.get("/api/customer/delete/:customerId", (req, res) => {
     Customer.findById(req.params.customerId)
         .then(async customer => {
@@ -640,12 +1505,51 @@ app.get("/api/customer/delete/:customerId", (req, res) => {
 
 //Table
 //===============================================================================================================================================================================================
+/**
+ * @swagger
+ * /api/table/:
+ *  get :
+ *      summary : This api is used to get all table details from database
+ *      description : 
+ *      responses : 
+ *          200 :
+ *              description : This api gets all document from table table
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Table" 
+ * */
 app.get("/api/table", (req, res) => {
     Table.find({})
         .then(table => { return res.send({ success: true, msg: "Data Found", document: table }) })
         .catch(err => { return res.status(202).send({ success: false, msg: "Error Occured", document: err.message }) })
 })
 
+/**
+ * @swagger
+ * /api/table/new:
+ *  post : 
+ *      summary : This api is used to add new table details in database
+ *      description : This api is used to add new table details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Table"
+ *      responses :
+ *          200 : 
+ *              description : Added Successfully
+ *  */
 app.post("/api/table/new", async (req, res) => {
     let table = new Table({
         tableNo: Number(req.body.tableNo),
@@ -662,6 +1566,35 @@ app.post("/api/table/new", async (req, res) => {
     }
 })
 
+/**
+ * @swagger
+ * /api/table/update:
+ *  put : 
+ *      summary : This api is used to update table details in database
+ *      description : This api is used to update table details in database
+ *      requestBody:
+ *          required : true
+ *          content : 
+ *              application/json :
+ *                  schema : 
+ *                      $ref : "#components/schema/Table"
+ *      responses :
+ *          200 : 
+ *              description : Updated Successfully
+ *              content : 
+ *                  application/json :
+ *                      schema : 
+ *                          type : object
+ *                          properties :
+ *                              success : 
+ *                                  type : boolean
+ *                              msg : 
+ *                                  type : string
+ *                              document : 
+ *                                  type : array
+ *                                  items :
+ *                                      $ref : "#components/schema/Table"
+ *  */
 app.put("/api/table/update/", async (req, res) => {
     Table.findById(req.body.tableId)
         .then(table => {
@@ -675,17 +1608,44 @@ app.put("/api/table/update/", async (req, res) => {
         .catch(err => { return res.status(202).send({ success: false, msg: "Table does not exists", document: err.message }) })
 })
 
+/**
+ * @swagger
+ * /api/table/delete:
+ *  delete : 
+ *      summary : This api is used to delete all documents from database.
+ *      description : This api is used to delete all documents from database.
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
 app.get("/api/table/delete", (req, res) => {
     Table.deleteMany({})
         .then(tables => { return res.send({ success: true, msg: "Tables deleted", document: tables }) })
         .catch(err => { return res.status(202).send({ success: false, msg: "Error occured", document: err.message }) })
 })
 
+/**
+ * @swagger
+ * /api/table/delete/{id}:
+ *  delete : 
+ *      summary : This api is used to delete document with given ID from database.
+ *      description : This api is used to delete document with given ID from database.
+ *      parameters : 
+ *          - in : path
+ *            name : id
+ *            required : true
+ *            description : Table ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
 app.get("/api/table/delete/:tableId", (req, res) => {
     Table.findById(req.params.tableId)
         .then(async table => {
             let result = await table.delete()
-            
+
             if (result) {
                 res.send({ success: true, msg: "Table Deleted", document: result })
             }
@@ -699,11 +1659,10 @@ app.get("/api/table/delete/:tableId", (req, res) => {
 
 //orders
 //==============================================================================================================================================================================
-
 app.get("/api/order", (req, res) => {
     Order.find({})
         .then(orders => { return res.send({ success: true, msg: "Order details found", document: orders }) })
-        .catch(err => { return res.status(202).send({ success: false, msg: "Erorr Occured", document: null }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Erorr Occured", document: err.message }) })
 })
 
 app.post("/api/order/new", async (req, res) => {
@@ -728,4 +1687,10 @@ app.post("/api/order/new", async (req, res) => {
     orderItems.forEach(item => {
         console.log(item)
     })
+})
+
+app.get("/api/order/delete", (req, res) => {
+    Order.deleteMany({})
+        .then(result => { return res.send({ success: true, msg: "Orders deleted", document: result }) })
+        .catch(err => { return res.status(202).send({ success: false, msg: "Error in deletion", document: err.message }) })
 })
