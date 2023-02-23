@@ -5,11 +5,15 @@ const orderSchema = mongoose.Schema({
     tableId: { type: mongoose.Schema.Types.ObjectId, ref: "Table", required: true },
     employeeId: { type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true },
     orderDate: { type: Date, required: true },
-    items: { type: String, required: true },
+    items: { type: Array, required: true },
     amount: { type: Number, required: true }
 }, {
     timestamps: true
 })
+
+orderSchema.methods.delete = async function () {
+    return await Order.deleteOne({ _id: this.id })
+}
 
 const Order = mongoose.model("order", orderSchema)
 

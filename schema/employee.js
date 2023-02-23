@@ -19,6 +19,8 @@ const employeeSchema = mongoose.Schema({
     departmentId: { type: mongoose.Schema.Types.ObjectId, required: true },
     salary: { type: Number, required: true },
     allowances: { type: Map }
+},{
+    timestamps: true
 })
 
 employeeSchema.methods.exists = async function () {
