@@ -18,7 +18,7 @@ const Department = require("../schema/department")
  *                      type : string
  *                  status :
  *                      type : string
- * /
+ */
 
 /**
  * @swagger

@@ -28,7 +28,7 @@ const Customer = require("../schema/customer")
  *                      type : string
  *                  status: 
  *                      type : string
- * /
+ */
 
 /**
  * @swagger

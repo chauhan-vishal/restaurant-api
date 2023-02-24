@@ -44,7 +44,7 @@ const Employee = require("../schema/employee")
  *                      type : string
  *                  bonus :
  *                      type : string
- * /
+ */
 
 /**
  * @swagger

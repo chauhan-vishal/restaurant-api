@@ -20,7 +20,7 @@ const SubCategory = require("../schema/sub-category")
  *                      type : string
  *                  status : 
  *                      type : string
- * /
+ */
 
 /**
  * @swagger

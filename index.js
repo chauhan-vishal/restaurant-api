@@ -15,6 +15,12 @@ const mongoose = require("mongoose")
 const CONSTANT = require("./constants")
 
 
+// User Authorization for all requests
+app.use((req, res, next) => {
+    next()
+})
+
+
 // ====================================================================================================================================
 // Swagger
 const swaggerJSDoc = require("swagger-jsdoc")
@@ -34,10 +40,10 @@ const options = {
         ]
     },
     apis: [
-        './index.js', 
+        './index.js',
         './routes/category.js',
         './routes/cuisine.js',
-        './routes/sub-ccategory.js',
+        './routes/sub-category.js',
         './routes/item.js',
         './routes/department.js',
         './routes/employee.js',

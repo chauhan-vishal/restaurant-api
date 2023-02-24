@@ -20,7 +20,6 @@ const Category = require("../schema/category")
  *                      type : string
  */
 
-
 /**
  * @swagger
  * /api/category/:

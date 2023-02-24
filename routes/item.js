@@ -24,7 +24,7 @@ const Item = require("../schema/item")
  *                      type : integer
  *                  qty : 
  *                      type : integer
- * /
+ */
 
 /**
  * @swagger

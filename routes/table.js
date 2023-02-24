@@ -18,7 +18,7 @@ const Table = require("../schema/table")
  *                      type : string
  *                  status :
  *                      type : string
- * /
+ */
 
 /**
  * @swagger

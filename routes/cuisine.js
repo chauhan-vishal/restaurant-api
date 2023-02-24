@@ -20,8 +20,7 @@ const Cuisine = require("../schema/cuisine")
  *                      type : string
  *                  status : 
  *                      type : string
- * /
-
+ */
 
 /**
  * @swagger

@@ -28,7 +28,7 @@ const Order = require("../schema/order")
  *                                  type : integer
  *                  amount : 
  *                      type : integer
- * /
+ */
 
 /**
  * @swagger
