@@ -3,11 +3,26 @@ const router = express.Router()
 
 const Table = require("../schema/table")
 
-//Table
-//===============================================================================================================================================================================================
 /**
  * @swagger
- * /:
+ * components :
+ *      schema :
+ *          Table :
+ *              type : object
+ *              properties :
+ *                  tableId :
+ *                      type : string
+ *                  tableNo : 
+ *                      type : string
+ *                  noOfSeat : 
+ *                      type : string
+ *                  status :
+ *                      type : string
+ * /
+
+/**
+ * @swagger
+ * /api/table/:
  *  get :
  *      summary : This api is used to get all table details from database
  *      description : 
@@ -36,7 +51,7 @@ router.get("/", (req, res) => {
 
 /**
  * @swagger
- * /new:
+ * /api/table/new:
  *  post : 
  *      summary : This api is used to add new table details in database
  *      description : This api is used to add new table details in database
@@ -68,7 +83,7 @@ router.post("/new", async (req, res) => {
 
 /**
  * @swagger
- * /update:
+ * /api/table/update:
  *  put : 
  *      summary : This api is used to update table details in database
  *      description : This api is used to update table details in database
@@ -110,7 +125,7 @@ router.put("/update/", async (req, res) => {
 
 /**
  * @swagger
- * /delete:
+ * /api/table/delete:
  *  delete : 
  *      summary : This api is used to delete all documents from database.
  *      description : This api is used to delete all documents from database.
@@ -126,7 +141,7 @@ router.delete("/delete", (req, res) => {
 
 /**
  * @swagger
- * /delete/{id}:
+ * /api/table/delete/{id}:
  *  delete : 
  *      summary : This api is used to delete document with given ID from database.
  *      description : This api is used to delete document with given ID from database.

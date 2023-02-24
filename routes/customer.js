@@ -3,11 +3,36 @@ const router = express.Router()
 
 const Customer = require("../schema/customer")
 
-//Customer
-//=============================================================================================================================================================================================================================
 /**
  * @swagger
- * /:
+ * components :
+ *      schema :
+ *          Customer:
+ *              type : object
+ *              properties :
+ *                  customerId :
+ *                      type : string
+ *                  first : 
+ *                      type : string
+ *                  last: 
+ *                      type : string
+ *                  email: 
+ *                      type : string
+ *                  contact: 
+ *                      type : string
+ *                  gender: 
+ *                      type : string
+ *                  dob: 
+ *                      type : string
+ *                  doa: 
+ *                      type : string
+ *                  status: 
+ *                      type : string
+ * /
+
+/**
+ * @swagger
+ * /api/customer/:
  *  get :
  *      summary : This api is used to get all customer details from database
  *      description : 
@@ -36,7 +61,7 @@ router.get("/", (req, res) => {
 
 /**
  * @swagger
- * /new:
+ * /api/customer/new:
  *  post : 
  *      summary : This api is used to add new customer details in database
  *      description : This api is used to add new customer details in database
@@ -77,7 +102,7 @@ router.post("/new", async (req, res) => {
 
 /**
  * @swagger
- * /update:
+ * /api/customer/update:
  *  put : 
  *      summary : This api is used to update customer details in database
  *      description : This api is used to update customer details in database
@@ -132,7 +157,7 @@ router.put("/update", (req, res) => {
 
 /**
  * @swagger
- * /delete:
+ * /api/customer/delete:
  *  delete : 
  *      summary : This api is used to delete all documents from database.
  *      description : This api is used to delete all documents from database.
@@ -148,7 +173,7 @@ router.delete("/delete", (req, res) => {
 
 /**
  * @swagger
- * /delete/{id}:
+ * /api/customer/delete/{id}:
  *  delete : 
  *      summary : This api is used to delete document with given ID from database.
  *      description : This api is used to delete document with given ID from database.

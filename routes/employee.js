@@ -3,11 +3,52 @@ const router = express.Router()
 
 const Employee = require("../schema/employee")
 
-// Employee
-// =================================================================================================================================
 /**
  * @swagger
- * /:
+ * components :
+ *      schema :
+ *          Employee:
+ *              type : object
+ *              properties : 
+ *                  employeeId :
+ *                      type : string
+ *                  departmentId :
+ *                      type : string
+ *                  first :
+ *                      type : string
+ *                  last :
+ *                      type : string
+ *                  gender :
+ *                      type : string
+ *                  contact :
+ *                      type : string
+ *                  email :
+ *                      type : string
+ *                  street :
+ *                      type : string
+ *                  city :
+ *                      type : string
+ *                  state :
+ *                      type : string
+ *                  country :
+ *                      type : string
+ *                  pincode :
+ *                      type : string
+ *                  dob :
+ *                      type : string
+ *                  doj :
+ *                      type : string
+ *                  salary :
+ *                      type : string
+ *                  da :
+ *                      type : string
+ *                  bonus :
+ *                      type : string
+ * /
+
+/**
+ * @swagger
+ * /api/employee/:
  *  get :
  *      summary : This api is used to get all employee details from database
  *      description : 
@@ -36,7 +77,7 @@ router.get("/", (req, res) => {
 
 /**
  * @swagger
- * /new:
+ * /api/employee/new:
  *  post : 
  *      summary : This api is used to add new employee details in database
  *      description : This api is used to add new employee details in database
@@ -92,7 +133,7 @@ router.post("/new", async (req, res) => {
 
 /**
  * @swagger
- * /update:
+ * /api/employee/update:
  *  put : 
  *      summary : This api is used to update employee details in database
  *      description : This api is used to update employee details in database
@@ -169,7 +210,7 @@ router.put("/update", (req, res) => {
 
 /**
  * @swagger
- * /delete:
+ * /api/employee/delete:
  *  delete : 
  *      summary : This api is used to delete all documents from database.
  *      description : This api is used to delete all documents from database.
@@ -185,7 +226,7 @@ router.delete("/delete", (req, res) => {
 
 /**
  * @swagger
- * /delete/{id}:
+ * /api/employee/delete/{id}:
  *  delete : 
  *      summary : This api is used to delete document with given ID from database.
  *      description : This api is used to delete document with given ID from database.

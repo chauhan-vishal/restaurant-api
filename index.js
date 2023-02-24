@@ -14,6 +14,7 @@ const mongoose = require("mongoose")
 
 const CONSTANT = require("./constants")
 
+
 // ====================================================================================================================================
 // Swagger
 const swaggerJSDoc = require("swagger-jsdoc")
@@ -32,192 +33,23 @@ const options = {
             }
         ]
     },
-    apis: ['./index.js']
+    apis: [
+        './index.js', 
+        './routes/category.js',
+        './routes/cuisine.js',
+        './routes/sub-ccategory.js',
+        './routes/item.js',
+        './routes/department.js',
+        './routes/employee.js',
+        './routes/customer.js',
+        './routes/table.js',
+        './routes/order.js',
+        './routes/user.js',
+    ]
 }
 
 const swaggerSpec = swaggerJSDoc(options)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
-
-/**
- * @swagger
- * components :
- *      schema :
- *          Category : 
- *              type : object
- *              properties :
- *                  categoryId:
- *                      type : string
- *                  name : 
- *                      type : string
- *                  desc : 
- *                      type : string
- *                  status : 
- *                      type : string
- * 
- *          Cuisine : 
- *              type : object
- *              properties :
- *                  cuisineId:
- *                      type : string
- *                  categoryId:
- *                      type : string
- *                  name : 
- *                      type : string
- *                  desc : 
- *                      type : string
- *                  status : 
- *                      type : string
- * 
- *          SubCategory:
- *              type : object
- *              properties :
- *                  subCategoryId:
- *                      type : string
- *                  cuisineId:
- *                      type : string
- *                  name : 
- *                      type : string
- *                  desc : 
- *                      type : string
- *                  status : 
- *                      type : string
- * 
- *          Item :
- *              type : object
- *              properties :
- *                  itemId:
- *                      type : string
- *                  subCategoryId:
- *                      type : string
- *                  name : 
- *                      type : string
- *                  desc : 
- *                      type : string
- *                  status : 
- *                      type : string
- *                  price :
- *                      type : integer
- *                  qty : 
- *                      type : integer
- * 
- *          Department :
- *              type : object
- *              properties :
- *                  departmentId :
- *                      type : string
- *                  name : 
- *                      type : string
- *                  desc : 
- *                      type : string
- *                  status :
- *                      type : string
- * 
- *          Employee:
- *              type : object
- *              properties : 
- *                  employeeId :
- *                      type : string
- *                  departmentId :
- *                      type : string
- *                  first :
- *                      type : string
- *                  last :
- *                      type : string
- *                  gender :
- *                      type : string
- *                  contact :
- *                      type : string
- *                  email :
- *                      type : string
- *                  street :
- *                      type : string
- *                  city :
- *                      type : string
- *                  state :
- *                      type : string
- *                  country :
- *                      type : string
- *                  pincode :
- *                      type : string
- *                  dob :
- *                      type : string
- *                  doj :
- *                      type : string
- *                  salary :
- *                      type : string
- *                  da :
- *                      type : string
- *                  bonus :
- *                      type : string
- * 
- * 
- *          Customer:
- *              type : object
- *              properties :
- *                  customerId :
- *                      type : string
- *                  first : 
- *                      type : string
- *                  last: 
- *                      type : string
- *                  email: 
- *                      type : string
- *                  contact: 
- *                      type : string
- *                  gender: 
- *                      type : string
- *                  dob: 
- *                      type : string
- *                  doa: 
- *                      type : string
- *                  status: 
- *                      type : string
- * 
- *          Table :
- *              type : object
- *              properties :
- *                  tableId :
- *                      type : string
- *                  tableNo : 
- *                      type : string
- *                  noOfSeat : 
- *                      type : string
- *                  status :
- *                      type : string
- * 
- *          Order :
- *              type : object
- *              properties :
- *                  orderId : 
- *                      type : string
- *                  customerId : 
- *                      type : string
- *                  employeeId : 
- *                      type : string
- *                  tableId : 
- *                      type : string
- *                  items : 
- *                      type : array
- *                      items:  
- *                          properties :
- *                              itemId : 
- *                                  type : string
- *                              qty : 
- *                                  type : integer
- *                  amount : 
- *                      type : integer
- * 
- *          User:
- *              type : object
- *              properties :
- *                  name : 
- *                      type : string
- *                  email : 
- *                      type : string
- *                  username : 
- *                      type : string
- */
-// ====================================================================================================================================
 
 /**
  * @swagger

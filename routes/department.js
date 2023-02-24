@@ -3,11 +3,26 @@ const router = express.Router()
 
 const Department = require("../schema/department")
 
-// Department
-// ==================================================================================================================
 /**
  * @swagger
- * /:
+ * components :
+ *      schema :
+ *          Department :
+ *              type : object
+ *              properties :
+ *                  departmentId :
+ *                      type : string
+ *                  name : 
+ *                      type : string
+ *                  desc : 
+ *                      type : string
+ *                  status :
+ *                      type : string
+ * /
+
+/**
+ * @swagger
+ * /api/department/:
  *  get :
  *      summary : This api is used to get all department details from database
  *      description : 
@@ -36,7 +51,7 @@ router.get("/", (req, res) => {
 
 /**
  * @swagger
- * /new:
+ * /api/department/new:
  *  post : 
  *      summary : This api is used to add new department details in database
  *      description : This api is used to add new department details in database
@@ -68,7 +83,7 @@ router.post("/new", async (req, res) => {
 
 /**
  * @swagger
- * /update:
+ * /api/department/update:
  *  put : 
  *      summary : This api is used to update department details in database
  *      description : This api is used to update department details in database
@@ -117,7 +132,7 @@ router.put("/update", async (req, res) => {
 
 /**
  * @swagger
- * /delete:
+ * /api/department/delete:
  *  delete : 
  *      summary : This api is used to delete all documents from database.
  *      description : This api is used to delete all documents from database.
@@ -136,7 +151,7 @@ router.delete("/delete", (req, res) => {
 
 /**
  * @swagger
- * /delete/{id}:
+ * /api/department/delete/{id}:
  *  delete : 
  *      summary : This api is used to delete document with given ID from database.
  *      description : This api is used to delete document with given ID from database.

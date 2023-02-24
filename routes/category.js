@@ -3,11 +3,27 @@ const router = express.Router();
 
 const Category = require("../schema/category")
 
-// Category
-// ==================================================================================================================================
 /**
  * @swagger
- * /:
+ * components :
+ *      schema :
+ *          Category : 
+ *              type : object
+ *              properties :
+ *                  categoryId:
+ *                      type : string
+ *                  name : 
+ *                      type : string
+ *                  desc : 
+ *                      type : string
+ *                  status : 
+ *                      type : string
+ */
+
+
+/**
+ * @swagger
+ * /api/category/:
  *  get : 
  *      summary : To get all categories from database
  *      description : This api is used to fetch all categories data from database
@@ -36,7 +52,7 @@ router.get("/", (req, res) => {
 
 /**
  * @swagger
- * /new:
+ * /api/category/new:
  *  post : 
  *      summary : This api is used to add new category details in database
  *      description : This api is used to add new category details in database
@@ -68,7 +84,7 @@ router.post("/new", async (req, res) => {
 
 /**
  * @swagger
- * /update:
+ * /api/category/update:
  *  put : 
  *      summary : This api is used to update category details in database
  *      description : This api is used to updaet category details in database
@@ -107,7 +123,7 @@ router.put("/update/", async (req, res) => {
 
 /**
  * @swagger
- * /delete:
+ * /api/category/delete:
  *  delete : 
  *      summary : This api is used to delete all documents from database.
  *      description : This api is used to delete all documents from database.
@@ -137,7 +153,7 @@ router.delete("/delete", (req, res) => {
 
 /**
  * @swagger
- * /delete/{id}:
+ * /api/category/delete/{id}:
  *  delete : 
  *      summary : This api is used to delete document with given ID from database.
  *      description : This api is used to delete document with given ID from database.

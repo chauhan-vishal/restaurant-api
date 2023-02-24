@@ -3,11 +3,32 @@ const router = express.Router()
 
 const Item = require("../schema/item")
 
-// item
-// ==============================================================================================================================================
 /**
  * @swagger
- * /:
+ * components :
+ *      schema :
+ *          Item :
+ *              type : object
+ *              properties :
+ *                  itemId:
+ *                      type : string
+ *                  subCategoryId:
+ *                      type : string
+ *                  name : 
+ *                      type : string
+ *                  desc : 
+ *                      type : string
+ *                  status : 
+ *                      type : string
+ *                  price :
+ *                      type : integer
+ *                  qty : 
+ *                      type : integer
+ * /
+
+/**
+ * @swagger
+ * /api/item/:
  *  get :
  *      summary : This api is used to get all item details from database
  *      description : 
@@ -36,7 +57,7 @@ router.get("/", (req, res) => {
 
 /**
  * @swagger
- * /new:
+ * /api/item/new:
  *  post : 
  *      summary : This api is used to add new item details in database
  *      description : This api is used to add new item details in database
@@ -77,7 +98,7 @@ router.post("/new", async (req, res) => {
 
 /**
  * @swagger
- * /update:
+ * /api/item/update:
  *  put : 
  *      summary : This api is used to update item details in database
  *      description : This api is used to update item details in database
@@ -136,7 +157,7 @@ router.put("/update/", (req, res) => {
 
 /**
  * @swagger
- * /delete:
+ * /api/item/delete:
  *  delete : 
  *      summary : This api is used to delete all documents from database.
  *      description : This api is used to delete all documents from database.
@@ -153,7 +174,7 @@ router.delete("/delete", (req, res) => {
 
 /**
  * @swagger
- * /delete/{id}:
+ * /api/item/delete/{id}:
  *  delete : 
  *      summary : This api is used to delete document with given ID from database.
  *      description : This api is used to delete document with given ID from database.

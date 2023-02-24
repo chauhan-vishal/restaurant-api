@@ -3,11 +3,36 @@ const router = express.Router()
 
 const Order = require("../schema/order")
 
-//orders
-//==============================================================================================================================================================================
 /**
  * @swagger
- * /:
+ * components :
+ *      schema :
+ *          Order :
+ *              type : object
+ *              properties :
+ *                  orderId : 
+ *                      type : string
+ *                  customerId : 
+ *                      type : string
+ *                  employeeId : 
+ *                      type : string
+ *                  tableId : 
+ *                      type : string
+ *                  items : 
+ *                      type : array
+ *                      items:  
+ *                          properties :
+ *                              itemId : 
+ *                                  type : string
+ *                              qty : 
+ *                                  type : integer
+ *                  amount : 
+ *                      type : integer
+ * /
+
+/**
+ * @swagger
+ * /api/order/:
  *  get:
  *      summary: This api is used to get all orde details
  *      description: This api is used to get all orde details
@@ -36,7 +61,7 @@ router.get("/", (req, res) => {
 
 /**
  * @swagger
- * /new:
+ * /api/order/new:
  *  post:
  *      summary : This api is used to add a new order in database.
  *      description : This api is used to add a new order in database.
@@ -90,7 +115,7 @@ router.post("/new", async (req, res) => {
 
 /**
  * @swagger
- * /update:
+ * /api/order/update:
  *  put : 
  *      summary : This api is used to update order details in database
  *      description : This api is used to update order details in database
@@ -191,7 +216,7 @@ function isValidOrder(items) {
 
 /**
  * @swagger
- * /delete:
+ * /api/order/delete:
  *  delete:
  *      summary : This api is used to delete all orders from database
  *      description : This api is used to delete all orders from database
@@ -207,7 +232,7 @@ router.delete("/delete", (req, res) => {
 
 /**
  * @swagger
- * /delete/{id}:
+ * /api/order/delete/{id}:
  *  delete : 
  *      summary : This api is used to delete document with given ID from database.
  *      description : This api is used to delete document with given ID from database.

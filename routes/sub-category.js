@@ -3,11 +3,28 @@ const router = express.Router()
 
 const SubCategory = require("../schema/sub-category")
 
-// Sub Category
-// ================================================================================================================================
 /**
  * @swagger
- * /:
+ * components :
+ *      schema :
+ *          SubCategory:
+ *              type : object
+ *              properties :
+ *                  subCategoryId:
+ *                      type : string
+ *                  cuisineId:
+ *                      type : string
+ *                  name : 
+ *                      type : string
+ *                  desc : 
+ *                      type : string
+ *                  status : 
+ *                      type : string
+ * /
+
+/**
+ * @swagger
+ * /api/sub-category/:
  *  get :
  *      summary : This api is used to get all sub category details from database
  *      description : 
@@ -37,7 +54,7 @@ router.get("/", (req, res) => {
 
 /**
  * @swagger
- * /new:
+ * /api/sub-category/new:
  *  post : 
  *      summary : This api is used to add new sub category details in database
  *      description : This api is used to add new sub category details in database
@@ -77,7 +94,7 @@ router.post("/new", async (req, res) => {
 
 /**
  * @swagger
- * /update:
+ * /api/sub-category/update:
  *  put : 
  *      summary : This api is used to update sub category details in database
  *      description : This api is used to update sub category details in database
@@ -133,7 +150,7 @@ router.put("/update/", (req, res) => {
 
 /**
  * @swagger
- * /delete:
+ * /api/sub-category/delete:
  *  delete : 
  *      summary : This api is used to delete all documents from database.
  *      description : This api is used to delete all documents from database.
@@ -151,7 +168,7 @@ router.delete("/delete", (req, res) => {
 
 /**
  * @swagger
- * /delete/{id}:
+ * /api/sub-category/delete/{id}:
  *  delete : 
  *      summary : This api is used to delete document with given ID from database.
  *      description : This api is used to delete document with given ID from database.
