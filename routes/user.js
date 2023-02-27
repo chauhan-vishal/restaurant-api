@@ -82,7 +82,9 @@ router.post("/new", async (req, res) => {
             return res.send({ success: false, msg: "Email already exists", document: null })
         }
 
-        user.setPassword(req.body.password)
+        await user.setPassword(req.body.password)
+        user.setToken()
+
         user.save()
             .then(user => { return res.send({ success: true, msg: "User data", document: user }) })
             .catch(err => { return res.send({ success: false, msg: "Error occured ! " + err.message, document: null }) })
@@ -158,6 +160,8 @@ router.delete("/delete/:userId", (req, res) => {
  *                          password :  
  *                              type : string
  *                              required : true
+ *                          token :  
+ *                              type : string
  *      responses :
  *          200 : 
  *              description : Deleted Successfully
@@ -167,8 +171,8 @@ router.post("/login", (req, res) => {
     let password = req.body.password
 
     User.findOne({ username: username })
-        .then(user => {
-            if (user.validPassword(password)) {
+        .then(async user => {
+            if (await user.validPassword(password)) {
                 return res.send({ success: true, msg: "Login Successfull !", document: null })
             }
             else {

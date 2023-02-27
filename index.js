@@ -1,3 +1,4 @@
+const CONSTANT = require("./constants")
 const bodyParser = require("body-parser")
 const express = require("express")
 const app = express()
@@ -9,16 +10,7 @@ const port = process.env.PORT || 2503
 app.listen(port, () => { console.log(`App is listening on ${port}`) })
 
 const database = require("./database")
-
-const mongoose = require("mongoose")
-
-const CONSTANT = require("./constants")
-
-
-// User Authorization for all requests
-app.use((req, res, next) => {
-    next()
-})
+database.connect()
 
 
 // ====================================================================================================================================
@@ -57,6 +49,13 @@ const options = {
 const swaggerSpec = swaggerJSDoc(options)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
+const auth = require("./middleware/auth");
+// User Authorization for all requests
+app.use(auth, (req, res, next) => {
+    next()
+})
+
+
 /**
  * @swagger
  * /:
@@ -70,7 +69,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 app.get("/", (req, res) => {
     res.send("Welcome !")
 })
-
 
 const category = require("./routes/category")
 app.use("/api/category", category)
