@@ -43,6 +43,7 @@ const options = {
         './routes/table.js',
         './routes/order.js',
         './routes/user.js',
+        './routes/payment.js',
     ]
 }
 
@@ -99,3 +100,6 @@ app.use("/api/order", order)
 
 const user = require("./routes/user")
 app.use("/api/user", user)
+
+const payment = require("./routes/payment")
+app.use("/api/payment", payment)
