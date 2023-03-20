@@ -118,9 +118,16 @@ router.put("/update/", async (req, res) => {
                 return res.send({ success: false, msg: "Category name already exists", document: null })
             }
 
+            await aws.deleteImageFromURL(category.img)
+            let imgUrl = await aws.getImageURL(req.body.img, "Category")
+
+            console.log("img : " + imgUrl)
+
+
             category.name = req.body.name || category.name
             category.desc = req.body.desc || category.desc
             category.status = req.body.status || category.status
+            category.img = imgUrl || category.img
 
             category.save()
                 .then(category => { return res.send({ success: true, msg: "Category details updated !", document: category }) })
@@ -212,6 +219,7 @@ router.delete("/delete/:categoryId", (req, res) => {
         .then(async category => {
             // deleteCuisineByCategoryId(category._id);
 
+            await aws.deleteImageFromURL(category.img);
             let result = await category.delete();
 
             if (result) {
