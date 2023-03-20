@@ -72,7 +72,7 @@ router.get("/", (req, res) => {
  *  */
 router.post("/new", async (req, res) => {
 
-    let imgUrl = await aws.generateUploadURL(req.body.img, "Category")
+    let imgUrl = await aws.getImageURL(req.body.img, "Category")
 
     let category = new Category({
         name: req.body.name,

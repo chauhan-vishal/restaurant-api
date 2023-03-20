@@ -17,7 +17,7 @@ const s3Bucket = new aws.S3({
 })
 
 
-const generateUploadURL = async (base64Image, folderName) => {
+const getImageURL = async (base64Image, folderName) => {
     const rawBytes = crypto.randomBytes(16)
     const imageName = rawBytes.toString("hex")
 
@@ -50,4 +50,4 @@ const generateUploadURL = async (base64Image, folderName) => {
 }
 
 module.exports.s3 = s3Bucket
-module.exports.generateUploadURL = generateUploadURL
+module.exports.getImageURL = getImageURL
