@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const categroySchema = mongoose.Schema({
     name: { type: String, required: true },
     desc: String,
+    img: String,
     status: { type: String, default: "inactive" }
 }, {
     timestamps: true

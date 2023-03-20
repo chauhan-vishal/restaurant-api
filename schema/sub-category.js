@@ -1,9 +1,9 @@
 const mongoose = require('mongoose')
 
 const subCategorySchema = mongoose.Schema({
-    name: { type: String, required: true, unique : true },
+    name: { type: String, required: true, unique: true },
     desc: String,
-    cuisineId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    cuisineId: { type: mongoose.Schema.Types.ObjectId, ref: "Cuisine", required: true },
     status: String
 }, {
     timestamps: true

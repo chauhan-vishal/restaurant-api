@@ -3,7 +3,7 @@ const mongoose = require("mongoose")
 const cuisineSchema = mongoose.Schema({
     name: { type: String, required: true },
     desc: String,
-    categoryId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
     status: { type: String, default: "inactive" }
 }, {
     timestamps: true

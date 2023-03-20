@@ -1,10 +1,17 @@
 const CONSTANT = require("./constants")
 const bodyParser = require("body-parser")
 const express = require("express")
+const multer = require("multer")
+const cors = require("cors")
+const upload = multer({ dest: "upload/" })
 const app = express()
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(upload.array())
+
+app.use(cors())
 
 const port = process.env.PORT || 2503
 app.listen(port, () => { console.log(`App is listening on ${port}`) })
@@ -49,26 +56,15 @@ const options = {
 
 const swaggerSpec = swaggerJSDoc(options)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', "*");
+    next()
+})
 
 const auth = require("./middleware/auth");
 // User Authorization for all requests
 app.use(auth, (req, res, next) => {
     next()
-})
-
-
-/**
- * @swagger
- * /:
- *  get :
- *      summary: This api is used to check if get method is working or not
- *      description: This api is used to check if get method is working or not
- *      responses:
- *          200:
- *              description : To test Get method
- */
-app.get("/", (req, res) => {
-    res.send("Welcome !")
 })
 
 const category = require("./routes/category")
@@ -101,5 +97,66 @@ app.use("/api/order", order)
 const user = require("./routes/user")
 app.use("/api/user", user)
 
-const payment = require("./routes/payment")
+const payment = require("./routes/payment");
+const Category = require("./schema/category");
 app.use("/api/payment", payment)
+
+
+/**
+ * @swagger
+ * /:
+ *  get :
+ *      summary: This api is used to check if get method is working or not
+ *      description: This api is used to check if get method is working or not
+ *      responses:
+ *          200:
+ *              description : To test Get method
+ */
+app.get("/", (req, res) => {
+    res.send("Welcome !")
+})
+
+
+const aws = require("./aws-s3")
+
+app.post("/upload", async (req, res) => {
+
+    const imgUrl = aws.generateUploadURL(req.body.file)
+
+    console.log(imgUrl)
+
+    res.send({ msg: "Done" })
+
+
+
+
+
+
+    // const generateUploadURL = async () => {
+    //     const rawBytes = crypto.randomBytes(16)
+    //     const imageName = rawBytes.toString("hex")
+
+    //     const params = ({
+    //         Bucket: bucketName,
+    //         Key: imageName,
+    //         Expires: 60
+    //     })
+
+    //     const uploadURL = await s3Bucket.getSignedUrlPromise("putObject", params)
+    //     return uploadURL
+    // }
+
+    // const url = await generateUploadURL()
+
+    // console.log("URL : " + url)
+
+    // fetch(url, {
+    //     method: "PUT",
+    //     headers: {
+    //         "Content-type": "multipart/form-data"
+    //     },
+    //     body: req.body.file
+    // })
+    // .then(res => res.json())
+    // .then(res => console.log(res))
+})

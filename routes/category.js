@@ -1,5 +1,8 @@
 const express = require("express")
 const router = express.Router();
+const aws = require("../aws-s3")
+
+const CONSTANT = require("../constants")
 
 const Category = require("../schema/category")
 
@@ -44,10 +47,12 @@ const Category = require("../schema/category")
  *                                      $ref : "#components/schema/Category"
  *  */
 router.get("/", (req, res) => {
-    Category.find({}, { _id: 1, name: 1, desc: 1, status: 1 })
+    Category.find({}, { _id: 1, name: 1, desc: 1, img: 1, status: 1 })
+        .sort({ "createdAt": -1 })
         .then(categories => { return res.send({ success: true, msg: "Data Found", document: categories }) })
         .catch(err => { return res.send({ success: false, msg: "Error Occured", document: err.message }) })
 })
+
 
 /**
  * @swagger
@@ -58,7 +63,7 @@ router.get("/", (req, res) => {
  *      requestBody:
  *          required : true
  *          content : 
- *              application/json :
+ *              multipart/form-data :
  *                  schema : 
  *                      $ref : "#components/schema/Category"
  *      responses :
@@ -66,10 +71,14 @@ router.get("/", (req, res) => {
  *              description : Added Successfully
  *  */
 router.post("/new", async (req, res) => {
+
+    let imgUrl = await aws.generateUploadURL(req.body.img, "Category")
+
     let category = new Category({
         name: req.body.name,
         desc: req.body.desc,
         status: req.body.status || CONSTANT.STATUS_INACTIVE,
+        img: imgUrl
     })
 
     if (!await category.exists()) {
@@ -80,6 +89,7 @@ router.post("/new", async (req, res) => {
         return res.send({ success: false, msg: "Category already exists !", document: null })
     }
 })
+
 
 /**
  * @swagger
@@ -111,6 +121,36 @@ router.put("/update/", async (req, res) => {
             category.name = req.body.name || category.name
             category.desc = req.body.desc || category.desc
             category.status = req.body.status || category.status
+
+            category.save()
+                .then(category => { return res.send({ success: true, msg: "Category details updated !", document: category }) })
+                .catch(err => { return res.send({ success: false, msg: "Error in Updation", document: err.message }) })
+        })
+        .catch(err => { return res.send({ success: false, msg: "Category Does Not Exist !", document: err.message }) })
+})
+
+/**
+ * @swagger
+ * /api/category/update/status/{id}:
+ *  put : 
+ *      summary : This api is used to change the status of the item
+ *      description : This api is used to change the status of the item
+ *      parameters : 
+ *          - in : path
+ *            name : categoryId
+ *            required : true
+ *            description : Category ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Status Changed
+ *  */
+router.put("/update/status/:categoryId", (req, res) => {
+    let categoryId = req.params.categoryId;
+    Category.findById(categoryId)
+        .then(category => {
+            category.status = (category.status == "active") ? "inactive" : "active"
 
             category.save()
                 .then(category => { return res.send({ success: true, msg: "Category details updated !", document: category }) })
@@ -170,7 +210,7 @@ router.delete("/delete", (req, res) => {
 router.delete("/delete/:categoryId", (req, res) => {
     Category.findById(req.params.categoryId)
         .then(async category => {
-            deleteCuisineByCategoryId(category._id);
+            // deleteCuisineByCategoryId(category._id);
 
             let result = await category.delete();
 

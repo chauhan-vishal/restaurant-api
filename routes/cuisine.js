@@ -1,8 +1,10 @@
 const express = require("express")
 const router = express.Router()
 
-const Cuisine = require("../schema/cuisine")
+const CONSTANT = require("../constants")
 
+const Cuisine = require("../schema/cuisine")
+const Category = require("../schema/category")
 /**
  * @swagger
  * components :
@@ -46,7 +48,9 @@ const Cuisine = require("../schema/cuisine")
  *                                      $ref : "#components/schema/Cuisine" 
  * */
 router.get("/", (req, res) => {
-    Cuisine.find({}, { _id: 1, name: 1, desc: 1, status: 1 })
+    Cuisine.find({}, { _id: 1, name: 1, desc: 1, status: 1, categoryId: 1 })
+        .populate("categoryId")
+        .sort({ "createdAt": -1 })
         .then(cuisines => { return res.send({ success: true, msg: "Data Found", document: cuisines }) })
         .catch(err => { return res.send({ success: false, msg: "Error Occured", document: err.message }) })
 })
@@ -186,7 +190,7 @@ router.delete("/delete/:cuisineId", async (req, res) => {
 
     Cuisine.findById(req.params.cuisineId)
         .then(cuisine => {
-            deleteSubCategoryByCuisineId(cuisine._id)
+            // deleteSubCategoryByCuisineId(cuisine._id)
 
             Cuisine.deleteOne({ _id: cuisine._id })
                 .then(result => { return res.send({ success: true, msg: "Cuisine deleted", document: result }) })
@@ -194,14 +198,5 @@ router.delete("/delete/:cuisineId", async (req, res) => {
         })
         .catch(err => { return res.send({ success: false, msg: "Cuisine does not exists", document: err.message }) })
 })
-
-async function deleteCuisineByCategoryId(categoryId) {
-    let categories = await Cuisine.find({ categoryId: categoryId })
-
-    categories.forEach(async cuisine => {
-        cuisine.delete()
-        await deleteSubCategoryByCuisineId(await cuisine.getId())
-    });
-}
 
 module.exports = router
