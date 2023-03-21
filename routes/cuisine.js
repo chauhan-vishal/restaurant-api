@@ -1,5 +1,6 @@
 const express = require("express")
 const router = express.Router()
+const aws = require("../aws-s3")
 
 const CONSTANT = require("../constants")
 
@@ -72,10 +73,14 @@ router.get("/", (req, res) => {
  *              description : Added Successfully
  *  */
 router.post("/new", async (req, res) => {
+    
+    let imgUrl = await aws.getImageURL(req.body.img, "Cuisine")
+    
     let cuisine = new Cuisine({
         name: req.body.name,
         desc: req.body.desc,
         status: req.body.status || CONSTANT.STATUS_INACTIVE,
+        img : imgUrl
     })
 
     if (!await cuisine.exists()) {
