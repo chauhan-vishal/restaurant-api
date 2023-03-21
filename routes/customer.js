@@ -155,6 +155,36 @@ router.put("/update", (req, res) => {
         .catch(err => { return res.send({ success: false, msg: "Customer Does Not Exist !", document: err.message }) })
 })
 
+
+/**
+ * @swagger
+ * /api/customer/update/status/{id}:
+ *  put : 
+ *      summary : This api is used to change the status of the item
+ *      description : This api is used to change the status of the item
+ *      parameters : 
+ *          - in : path
+ *            name : departmentId
+ *            required : true
+ *            description : Category ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Status Changed
+ *  */
+router.put("/update/status/:customerId", (req, res) => {
+    Customer.findById(req.params.customerId)
+        .then(customer => {
+            customer.status = (customer.status == "active") ? "inactive" : "active"
+
+            customer.save()
+                .then(category => { return res.send({ success: true, msg: "Customer details updated !", document: customer }) })
+                .catch(err => { return res.send({ success: false, msg: "Error in Updation", document: err.message }) })
+        })
+        .catch(err => { return res.send({ success: false, msg: "Customer Does Not Exist !", document: err.message }) })
+})
+
 /**
  * @swagger
  * /api/customer/delete:

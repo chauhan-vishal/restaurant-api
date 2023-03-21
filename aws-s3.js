@@ -55,6 +55,8 @@ const deleteImageFromURL = async (url) => {
     const bucketName = bucketArray.split(".")[0]
     const objectKey = decodeURIComponent(urlSplit[3]+"/"+urlSplit[4]);
 
+    console.log(objectKey)
+
     const params = {
         Bucket: bucketName,
         Key: objectKey
@@ -63,7 +65,6 @@ const deleteImageFromURL = async (url) => {
     try {
         const data = await new Promise((resolve, reject) => {
             s3Bucket.deleteObject(params, function (err, data) {
-                console.log("Delet Object")
                 if (err) {
                     reject(err);
                 } else {
@@ -73,6 +74,7 @@ const deleteImageFromURL = async (url) => {
         });
         return data
     } catch (err) {
+        console.log(err)
         throw err;
     }
 

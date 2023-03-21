@@ -1,8 +1,8 @@
-const STATUS_ACTIVE = 1
-const STATUS_INACTIVE = 0
+const STATUS_ACTIVE = "active"
+const STATUS_INACTIVE = "inactive"
 const TOKEN_KEY = "5xVpMrXK6g"
-const AWS_ACCESS_KEY_ID = "AKIA5NZ245NVGBJRAJTG"
-const AWS_SECRET_ACCESS_KEY = "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"
+const AWS_ACCESS_KEY_ID = "AKIA5NZ245NVFBKOMU4K"
+const AWS_SECRET_ACCESS_KEY = "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"
 
 module.exports = {
     STATUS_ACTIVE, 

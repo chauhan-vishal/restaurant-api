@@ -77,7 +77,7 @@ router.post("/new", async (req, res) => {
     let category = new Category({
         name: req.body.name,
         desc: req.body.desc,
-        status: req.body.status || CONSTANT.STATUS_INACTIVE,
+        status: (req.body.status) ? CONSTANT.STATUS_ACTIVE : CONSTANT.STATUS_INACTIVE,
         img: imgUrl
     })
 
@@ -229,7 +229,7 @@ router.delete("/delete/:categoryId", (req, res) => {
                 res.send({ success: false, msg: "Error in deletion", document: null })
             }
         })
-        .catch(err => { res.send({ success: false, msg: "Category Does Not Exist !", document: null }) })
+        .catch(err => { res.send({ success: false, msg: "Category Does Not Exist !", document: err.message}) })
 })
 
 module.exports = router

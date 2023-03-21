@@ -1,7 +1,10 @@
 const express = require("express")
 const router = express.Router()
 
+const CONSTANT = require("../constants")
+const aws = require("../aws-s3")
 const Employee = require("../schema/employee")
+const Department = require("../schema/department")
 
 /**
  * @swagger
@@ -93,6 +96,9 @@ router.get("/", (req, res) => {
  *              description : Added Successfully
  *  */
 router.post("/new", async (req, res) => {
+
+    const imgURl = await aws.getImageURL(req.body.img, "Employee")
+
     let employee = new Employee({
         name: {
             first: req.body.first,
@@ -114,7 +120,9 @@ router.post("/new", async (req, res) => {
         allowances: {
             da: Number(req.body.da),
             bonus: Number(req.body.bonus)
-        }
+        },
+        img: imgURl,
+        status: (req.body.status) ? CONSTANT.STATUS_ACTIVE : CONSTANT.STATUS_INACTIVE
     })
 
     if (!await employee.exists()) {
@@ -161,7 +169,7 @@ router.post("/new", async (req, res) => {
  *                                  items :
  *                                      $ref : "#components/schema/Employee"
  *  */
-router.put("/update", (req, res) => {
+router.put("/update/", (req, res) => {
     Employee.findById(req.body.employeeId)
         .then(async employee => {
 
@@ -199,14 +207,52 @@ router.put("/update", (req, res) => {
                 employee.salary = Number(req.body.salary) || employee.salary
                 employee.allowances.set("da", Number(req.body.da) || employee.allowances.get("da"))
                 employee.allowances.set("bonus", Number(req.body.bonus) || employee.allowances.get("bonus"))
+                employee.status = (req.body.status == true) ? CONSTANT.STATUS_ACTIVE : CONSTANT.STATUS_INACTIVE
+
+                if (req.body.img) {
+                    await aws.deleteImageFromURL(employee.img)
+                    employee.img = await aws.getImageURL(req.body.img, "Employee")
+                }
 
                 employee.save()
                     .then(employee => { return res.send({ success: true, msg: "Employee Updated", document: employee }) })
                     .catch(err => { return res.send({ success: false, msg: "Error in update", document: err.message }) })
             }
+            else {
+                return res.send({ success: false, msg: "Error in update!", document: null })
+            }
 
         })
         .catch(err => { return res.send({ success: false, msg: "Employee does not exist", document: err.message }) })
+})
+
+/**
+ * @swagger
+ * /api/employee/update/status/{id}:
+ *  put : 
+ *      summary : This api is used to change the status of the item
+ *      description : This api is used to change the status of the item
+ *      parameters : 
+ *          - in : path
+ *            name : employeeId
+ *            required : true
+ *            description : Category ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Status Changed
+ *  */
+router.put("/update/status/:employeeId", (req, res) => {
+    Employee.findById(req.params.employeeId)
+        .then(employee => {
+            employee.status = (employee.status == "active") ? "inactive" : "active"
+
+            employee.save()
+                .then(category => { return res.send({ success: true, msg: "Employee details updated !", document: employee }) })
+                .catch(err => { return res.send({ success: false, msg: "Error in Updation", document: err.message }) })
+        })
+        .catch(err => { return res.send({ success: false, msg: "Employee Does Not Exist !", document: err.message }) })
 })
 
 /**
@@ -242,20 +288,18 @@ router.delete("/delete", (req, res) => {
  *          200 : 
  *              description : Deleted Successfully
  *  */
-router.delete("/delete/:name", async (req, res) => {
-    let employee = new Employee({ email: req.params.name })
+router.delete("/delete/:employeeId", async (req, res) => {
+    Employee.findById(req.params.employeeId)
+        .then(async employee => {
+            let result = await employee.delete()
 
-    if (await employee.exists()) {
-        let result = await employee.delete()
-
-        if (result) {
-            return res.send({ success: true, msg: "Employee deleted", document: result })
-        } else {
-            return res.send({ success: false, msg: "Error", document: null })
-        }
-    } else {
-        return res.send({ success: false, msg: "Employee does not exists", document: null })
-    }
+            if (result) {
+                return res.send({ success: true, msg: "Employee deleted", document: result })
+            } else {
+                return res.send({ success: false, msg: "Error", document: null })
+            }
+        })
+        .catch(err => { return res.send({ success: false, msg: "Employee does not exists", document: err.message }) })
 })
 
 module.exports = router
