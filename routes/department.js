@@ -170,13 +170,13 @@ router.delete("/delete/:departmentId", async (req, res) => {
     Department.findById(req.params.departmentId)
         .then(async department => {
 
-            Employee.find({ departmentId: department._id })
-                .then(employees => {
-                    employees.forEach(emp => {
-                        emp.delete()
-                    })
-                })
-                .catch()
+            // Employee.find({ departmentId: department._id })
+            //     .then(employees => {
+            //         employees.forEach(emp => {
+            //             emp.delete()
+            //         })
+            //     })
+            //     .catch()
 
             let result = await department.delete()
 

@@ -49,6 +49,7 @@ const User = require("../schema/user")
  */
 router.get("/", (req, res) => {
     User.find({}, { name: 1, username: 1, email: 1 })
+    .populate("employeeId")
         .then(users => { return res.send({ success: true, msg: "User data", document: users }) })
         .catch(err => { return res.send({ success: false, msg: "Error occured ! " + err.message, document: null }) })
 })
@@ -71,9 +72,9 @@ router.get("/", (req, res) => {
  *  */
 router.post("/new", async (req, res) => {
     let user = new User({
-        name: req.body.name,
-        email: req.body.email,
+        employeeId: req.body.employeeId,
         username: req.body.username,
+        password:req.body.password
     })
 
     if (!await user.usernameExists()) {

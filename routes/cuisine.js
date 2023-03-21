@@ -49,7 +49,7 @@ const Category = require("../schema/category")
  *                                      $ref : "#components/schema/Cuisine" 
  * */
 router.get("/", (req, res) => {
-    Cuisine.find({}, { _id: 1, name: 1, desc: 1, status: 1, categoryId: 1 })
+    Cuisine.find({}, { _id: 1, name: 1, desc: 1, status: 1, categoryId: 1, img: 1 })
         .populate("categoryId")
         .sort({ "createdAt": -1 })
         .then(cuisines => { return res.send({ success: true, msg: "Data Found", document: cuisines }) })
@@ -130,6 +130,7 @@ router.post("/new", async (req, res) => {
  *                                      $ref : "#components/schema/Cuisine"
  *  */
 router.put("/update/", async (req, res) => {
+    console.log(req.body)
     Cuisine.findById(req.body.cuisineId)
         .then(async cuisine => {
             let c = await Cuisine.findOne({ name: req.body.name })

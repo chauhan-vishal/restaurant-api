@@ -4,8 +4,9 @@ const CONSTANTS = require("../constants")
 const jwt = require("jsonwebtoken")
 
 const userSchema = mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true },
+    // name: { type: String, required: true },
+    // email: { type: String, required: true },
+    employeeId: { type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true },
     username: { type: String, required: true, unique: true },
     password: { type: String, required : true },
     token: { type: String },
