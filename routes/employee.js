@@ -71,6 +71,7 @@ const Employee = require("../schema/employee")
  * */
 router.get("/", (req, res) => {
     Employee.find({}, { __v: 0, createdAt: 0, updatedAt: 0, "address._id": 0 })
+        .populate("departmentId")
         .then(emp => { return res.send({ success: true, msg: "Employee found", document: emp }) })
         .catch(err => { return res.send({ success: false, msg: "Error Occred", document: err.msg }) })
 })
