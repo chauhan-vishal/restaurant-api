@@ -49,5 +49,35 @@ const getImageURL = async (base64Image, folderName) => {
     }
 }
 
+const deleteImageFromURL = async (url) => {
+    const urlSplit = url.split('/');
+    const bucketArray = urlSplit[2];
+    const bucketName = bucketArray.split(".")[0]
+    const objectKey = decodeURIComponent(urlSplit[3]+"/"+urlSplit[4]);
+
+    const params = {
+        Bucket: bucketName,
+        Key: objectKey
+    };
+
+    try {
+        const data = await new Promise((resolve, reject) => {
+            s3Bucket.deleteObject(params, function (err, data) {
+                console.log("Delet Object")
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
+            })
+        });
+        return data
+    } catch (err) {
+        throw err;
+    }
+
+}
+
 module.exports.s3 = s3Bucket
 module.exports.getImageURL = getImageURL
+module.exports.deleteImageFromURL = deleteImageFromURL

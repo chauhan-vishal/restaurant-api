@@ -16,10 +16,10 @@ const employeeSchema = mongoose.Schema({
     address: addressSchema,
     dob: Date,
     doj: { type: Date, required: true },
-    departmentId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    departmentId: { type: mongoose.Schema.Types.ObjectId, ref: "Department", required: true },
     salary: { type: Number, required: true },
     allowances: { type: Map }
-},{
+}, {
     timestamps: true
 })
 
