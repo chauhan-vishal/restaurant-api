@@ -132,6 +132,35 @@ router.put("/update", async (req, res) => {
 
 /**
  * @swagger
+ * /api/department/update/status/{id}:
+ *  put : 
+ *      summary : This api is used to change the status of the item
+ *      description : This api is used to change the status of the item
+ *      parameters : 
+ *          - in : path
+ *            name : departmentId
+ *            required : true
+ *            description : Category ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Status Changed
+ *  */
+router.put("/update/status/:departmentId", (req, res) => {
+    Department.findById(req.params.departmentId)
+        .then(department => {
+            department.status = (department.status == "active") ? "inactive" : "active"
+
+            department.save()
+                .then(category => { return res.send({ success: true, msg: "Department details updated !", document: department }) })
+                .catch(err => { return res.send({ success: false, msg: "Error in Updation", document: err.message }) })
+        })
+        .catch(err => { return res.send({ success: false, msg: "Department Does Not Exist !", document: err.message }) })
+})
+
+/**
+ * @swagger
  * /api/department/delete:
  *  delete : 
  *      summary : This api is used to delete all documents from database.

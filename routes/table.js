@@ -123,6 +123,37 @@ router.put("/update/", async (req, res) => {
         .catch(err => { return res.send({ success: false, msg: "Table does not exists", document: err.message }) })
 })
 
+
+/**
+ * @swagger
+ * /api/table/update/status/{id}:
+ *  put : 
+ *      summary : This api is used to change the status of the item
+ *      description : This api is used to change the status of the item
+ *      parameters : 
+ *          - in : path
+ *            name : departmentId
+ *            required : true
+ *            description : Category ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Status Changed
+ *  */
+router.put("/update/status/:customerId", (req, res) => {
+    Table.findById(req.params.customerId)
+        .then(table => {
+            table.status = (table.status == "active") ? "inactive" : "active"
+
+            table.save()
+                .then(category => { return res.send({ success: true, msg: "Table details updated !", document: table }) })
+                .catch(err => { return res.send({ success: false, msg: "Error in Updation", document: err.message }) })
+        })
+        .catch(err => { return res.send({ success: false, msg: "Table Does Not Exist !", document: err.message }) })
+})
+
+
 /**
  * @swagger
  * /api/table/delete:
