@@ -1,15 +1,13 @@
-const CONSTANT = require("./constants")
 const bodyParser = require("body-parser")
 const express = require("express")
-const multer = require("multer")
 const cors = require("cors")
-const upload = multer({ dest: "upload/" })
 const app = express()
+
+require("dotenv").config();
 
 app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(upload.array())
 
 app.use(cors())
 

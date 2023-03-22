@@ -5,7 +5,7 @@ const cuisineSchema = mongoose.Schema({
     desc: String,
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
     img : String,
-    status: { type: String, default: "inactive" }
+    status: { type: String,  default : process.env.STATUS_INACTIVE }
 }, {
     timestamps: true
 })

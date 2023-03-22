@@ -88,7 +88,7 @@ router.post("/new", async (req, res) => {
             dob: req.body.dob,
             doa: req.body.doa
         },
-        status: req.body.status || CONSTANT.STATUS_INACTIVE,
+        status: req.body.status || process.env.STATUS_INACTIVE,
     })
 
     if (!await customer.exists()) {
@@ -133,7 +133,7 @@ router.put("/update", (req, res) => {
     Customer.findById(req.body.customerId)
         .then(async customer => {
 
-            let cust2 = Customer.findOne({ email: req.body.email })
+            let cust2 = await Customer.findOne({ email: req.body.email })
 
             if (cust2 != null && cust2._id.toString() != customer._id.toString()) {
                 return res.send({ success: false, msg: "Email already exists", document: null })

@@ -4,7 +4,7 @@ const categroySchema = mongoose.Schema({
     name: { type: String, required: true },
     desc: String,
     img: String,
-    status: { type: String, default: "inactive" }
+    status: { type: String, default: process.env.STATUS_INACTIVE }
 }, {
     timestamps: true
 });

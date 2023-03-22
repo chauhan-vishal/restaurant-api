@@ -2,8 +2,6 @@ const express = require("express")
 const router = express.Router()
 const aws = require("../aws-s3")
 
-const CONSTANT = require("../constants")
-
 const Cuisine = require("../schema/cuisine")
 const Category = require("../schema/category")
 /**
@@ -79,7 +77,7 @@ router.post("/new", async (req, res) => {
     let cuisine = new Cuisine({
         name: req.body.name,
         desc: req.body.desc,
-        status: req.body.status || CONSTANT.STATUS_INACTIVE,
+        status: req.body.status || process.env.STATUS_INACTIVE,
         img : imgUrl
     })
 

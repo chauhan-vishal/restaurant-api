@@ -1,7 +1,6 @@
 const express = require("express")
 const router = express.Router()
 
-const CONSTANT = require("../constants")
 const aws = require("../aws-s3")
 const Employee = require("../schema/employee")
 const Department = require("../schema/department")
@@ -122,7 +121,7 @@ router.post("/new", async (req, res) => {
             bonus: Number(req.body.bonus)
         },
         img: imgURl,
-        status: (req.body.status) ? CONSTANT.STATUS_ACTIVE : CONSTANT.STATUS_INACTIVE
+        status: (req.body.status) ? process.env.STATUS_ACTIVE : process.env.STATUS_INACTIVE
     })
 
     if (!await employee.exists()) {
@@ -207,7 +206,7 @@ router.put("/update/", (req, res) => {
                 employee.salary = Number(req.body.salary) || employee.salary
                 employee.allowances.set("da", Number(req.body.da) || employee.allowances.get("da"))
                 employee.allowances.set("bonus", Number(req.body.bonus) || employee.allowances.get("bonus"))
-                employee.status = (req.body.status == true) ? CONSTANT.STATUS_ACTIVE : CONSTANT.STATUS_INACTIVE
+                employee.status = (req.body.status == true) ? process.env.STATUS_ACTIVE : process.env.STATUS_INACTIVE
 
                 if (req.body.img) {
                     await aws.deleteImageFromURL(employee.img)
@@ -291,6 +290,9 @@ router.delete("/delete", (req, res) => {
 router.delete("/delete/:employeeId", async (req, res) => {
     Employee.findById(req.params.employeeId)
         .then(async employee => {
+
+            // await aws.deleteImageFromURL(employee.img)
+
             let result = await employee.delete()
 
             if (result) {

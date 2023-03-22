@@ -6,7 +6,8 @@ const paymentSchema = mongoose.Schema({
     discount: Number,
     tax: Number,
     amount: { type: Number, required: true },
-    method: { type: String, required: true }
+    method: { type: String, required: true },
+    status: { type: String, default: process.env.STATUS_INACTIVE }
 }, {
     timestamps: true
 })

@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const CONSTANTS = require("../constants")
+
+require("dotenv").config();
 
 const verifyToken = (req, res, next) => {
     return next()
@@ -15,7 +16,7 @@ const verifyToken = (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, CONSTANTS.TOKEN_KEY);
+        const decoded = jwt.verify(token, process.env.TOKEN_KEY);
         req.user = decoded;
     } catch (err) {
         return res.status(401).send("Invalid Token");

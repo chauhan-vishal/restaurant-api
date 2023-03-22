@@ -69,7 +69,7 @@ router.post("/new", async (req, res) => {
     let department = new Department({
         name: req.body.name,
         desc: req.body.desc,
-        status: req.body.status || CONSTANT.STATUS_INACTIVE
+        status: req.body.status || process.env.STATUS_INACTIVE
     })
 
     if (!await department.exists()) {

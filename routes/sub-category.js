@@ -1,8 +1,6 @@
 const express = require("express")
 const router = express.Router()
 
-const CONSTANT = require("../constants")
-
 const SubCategory = require("../schema/sub-category")
 
 /**
@@ -74,7 +72,7 @@ router.post("/new", async (req, res) => {
     let subCategory = new SubCategory({
         name: req.body.name,
         desc: req.body.desc,
-        status: req.body.status || CONSTANT.STATUS_INACTIVE
+        status: req.body.status || process.env.STATUS_INACTIVE
     })
 
     if (!await subCategory.exists()) {

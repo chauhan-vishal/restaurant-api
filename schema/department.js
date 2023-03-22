@@ -3,7 +3,7 @@ const mongoose = require("mongoose")
 const departmentSchema = mongoose.Schema({
     name: { type: String, required: true },
     desc: String,
-    status: { type: String, default: "inactive" }
+    status: { type: String, default: process.env.STATUS_INACTIVE }
 }, {
     timestamps: true
 })

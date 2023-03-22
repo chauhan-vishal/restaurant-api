@@ -69,7 +69,7 @@ router.post("/new", async (req, res) => {
     let table = new Table({
         tableNo: Number(req.body.tableNo),
         noOfSeat: Number(req.body.noOfSeat),
-        status: req.body.status || CONSTANT.STATUS_INACTIVE,
+        status: req.body.status || process.env.STATUS_INACTIVE,
     })
 
     if (!await table.exists()) {
@@ -112,12 +112,20 @@ router.post("/new", async (req, res) => {
  *  */
 router.put("/update/", async (req, res) => {
     Table.findById(req.body.tableId)
-        .then(table => {
+        .then(async table => {
+
+            let table2 = await Table.findOne({ tableNo: req.body.tableNo })
+
+            if (table2 != null && table2._id.toString() != table._id.toString()) {
+                return res.send({ success: false, msg: "Table No Already Exists !", document: null })
+            }
+
+            table.tableNo = req.body.tableNo || table.tableNo
             table.noOfSeat = req.body.noOfSeat || table.noOfSeat
             table.status = req.body.status || table.status
 
             table.save()
-                .then(tbl => { return res.send({ success: false, msg: "Table details updateds", document: tbl }) })
+                .then(tbl => { return res.send({ success: true, msg: "Table details updateds", document: tbl }) })
                 .catch(err => { return res.send({ success: false, msg: "Error in update", document: err.message }) })
         })
         .catch(err => { return res.send({ success: false, msg: "Table does not exists", document: err.message }) })

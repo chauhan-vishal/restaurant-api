@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const mongoose = require("mongoose")
-const CONSTANTS = require("../constants")
+
 const jwt = require("jsonwebtoken")
 
 const userSchema = mongoose.Schema({
@@ -8,8 +8,9 @@ const userSchema = mongoose.Schema({
     // email: { type: String, required: true },
     employeeId: { type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true },
     username: { type: String, required: true, unique: true },
-    password: { type: String, required : true },
+    password: { type: String, required: true },
     token: { type: String },
+    status: { type: String, default: process.env.STATUS_INACTIVE }
 
 })
 
@@ -24,7 +25,7 @@ userSchema.methods.emailExists = async function () {
 userSchema.methods.setToken = function () {
     const token = jwt.sign(
         { user_id: this._id, email: this.email },
-        CONSTANTS.TOKEN_KEY,
+        process.envS.TOKEN_KEY,
         {
             expiresIn: "2h",
         }

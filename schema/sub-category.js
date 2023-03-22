@@ -4,7 +4,7 @@ const subCategorySchema = mongoose.Schema({
     name: { type: String, required: true, unique: true },
     desc: String,
     cuisineId: { type: mongoose.Schema.Types.ObjectId, ref: "Cuisine", required: true },
-    status: String
+    status: { type: String, default: process.env.STATUS_INACTIVE }
 }, {
     timestamps: true
 })

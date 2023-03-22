@@ -10,10 +10,10 @@ const Role = require("../schema/role")
 *          Role:
 *              type : object
 *              properties :
-*                  rolename : 
+*                   rolename : 
 *                      type : string
 *                      required : true
-*                  roledesc : 
+*                   roledesc : 
 *                      type : string
 *                      required : true
 *                   status : 
@@ -69,7 +69,7 @@ router.post("/new", async (req, res) => {
     let role = new Role({
         rolename: req.body.rolename,
         roledesc: req.body.roledesc,
-        status: req.body.status || CONSTANT.STATUS_INACTIVE,
+        status: req.body.status || process.env.STATUS_INACTIVE,
 
     })
 

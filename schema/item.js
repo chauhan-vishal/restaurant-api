@@ -4,9 +4,9 @@ const itemSchema = mongoose.Schema({
     name: { type: String, required: true },
     desc: String,
     subCategoryId: { type: mongoose.Schema.Types.ObjectId, required: true },
-    status: { type: String, default: "inactive" },
     price: { type: Number, required: true },
-    qty: { type: Number, required: true }
+    qty: { type: Number, required: true },
+    status: { type: String, default: process.env.STATUS_INACTIVE }
 }, {
     timestamps: true
 })

@@ -14,13 +14,13 @@ const employeeSchema = mongoose.Schema({
     contact: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     address: addressSchema,
-    dob: Date,  
+    dob: Date,
     doj: { type: Date, required: true },
     departmentId: { type: mongoose.Schema.Types.ObjectId, ref: "Department", required: true },
     salary: { type: Number, required: true },
     allowances: { type: Map },
-    img : String,
-    status : String
+    img: String,
+    status: { type: String, default: process.env.STATUS_INACTIVE }
 }, {
     timestamps: true
 })

@@ -6,7 +6,7 @@ const customerSchema = mongoose.Schema({
     contact: String,
     gender: String,
     dates: Map,
-    status: { type: String, default: "inactive" }
+    status: { type: String, default: process.env.STATUS_INACTIVE }
 }, {
     timestamps: true
 })
