@@ -3,7 +3,6 @@ const router = express.Router()
 const aws = require("../aws-s3")
 
 const Cuisine = require("../schema/cuisine")
-const Category = require("../schema/category")
 /**
  * @swagger
  * components :

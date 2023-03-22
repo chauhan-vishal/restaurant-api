@@ -38,7 +38,7 @@ const options = {
     },
     apis: [
         './index.js',
-        './routes/category.js',
+        './routes/tag.js',
         './routes/cuisine.js',
         './routes/sub-category.js',
         './routes/item.js',
@@ -67,8 +67,8 @@ app.use(auth, (req, res, next) => {
     next()
 })
 
-const category = require("./routes/category")
-app.use("/api/category", category)
+const tag = require("./routes/tag")
+app.use("/api/tag", tag)
 
 const cuisine = require("./routes/cuisine")
 app.use("/api/cuisine", cuisine)
@@ -98,7 +98,7 @@ const user = require("./routes/user")
 app.use("/api/user", user)
 
 const payment = require("./routes/payment");
-const Category = require("./schema/category");
+const Tag = require("./schema/tag");
 app.use("/api/payment", payment)
 
 const role = require("./routes/role")

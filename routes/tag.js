@@ -2,28 +2,27 @@ const express = require("express")
 const router = express.Router();
 const aws = require("../aws-s3")
 
-const Category = require("../schema/category")
+const Tag = require("../schema/tag")
 
 /**
  * @swagger
  * components :
  *      schema :
- *          Category : 
+ *          Tag : 
  *              type : object
  *              properties :
- *                  categoryId:
+ *                  tagId:
  *                      type : string
  *                  name : 
  *                      type : string
- *                  desc : 
- *                      type : string
+ *                 
  *                  status : 
  *                      type : string
  */
 
 /**
  * @swagger
- * /api/category/:
+ * /api/tag/:
  *  get : 
  *      summary : To get all categories from database
  *      description : This api is used to fetch all categories data from database
@@ -45,16 +44,16 @@ const Category = require("../schema/category")
  *                                      $ref : "#components/schema/Category"
  *  */
 router.get("/", (req, res) => {
-    Category.find({}, { _id: 1, name: 1, desc: 1, img: 1, status: 1 })
+    Tag.find({}, { _id: 1, name: 1, status: 1 })
         .sort({ "createdAt": -1 })
-        .then(categories => { return res.send({ success: true, msg: "Data Found", document: categories }) })
+        .then(tags => { return res.send({ success: true, msg: "Data Found", document: tags }) })
         .catch(err => { return res.send({ success: false, msg: "Error Occured", document: err.message }) })
 })
 
 
 /**
  * @swagger
- * /api/category/new:
+ * /api/tag/new:
  *  post : 
  *      summary : This api is used to add new category details in database
  *      description : This api is used to add new category details in database
@@ -70,28 +69,28 @@ router.get("/", (req, res) => {
  *  */
 router.post("/new", async (req, res) => {
 
-    let imgUrl = await aws.getImageURL(req.body.img, "Category")
+    // let imgUrl = await aws.getImageURL(req.body.img, "Category")
 
-    let category = new Category({
+    let tag = new Tag({
         name: req.body.name,
-        desc: req.body.desc,
+        // desc: req.body.desc,
         status: (req.body.status) ? process.env.STATUS_ACTIVE : process.env.STATUS_INACTIVE,
-        img: imgUrl
+        // img: imgUrl
     })
 
-    if (!await category.exists()) {
-        category.save()
-            .then(category => { return res.send({ success: true, msg: "Category Created", document: category }) })
+    if (!await tag.exists()) {
+        tag.save()
+            .then(tag => { return res.send({ success: true, msg: "Tag Created", document: tag }) })
             .catch(err => { return res.send({ success: false, msg: "Error in creation!", document: err.message }) })
     } else {
-        return res.send({ success: false, msg: "Category already exists !", document: null })
+        return res.send({ success: false, msg: "Tag already exists !", document: null })
     }
 })
 
 
 /**
  * @swagger
- * /api/category/update:
+ * /api/tag/update:
  *  put : 
  *      summary : This api is used to update category details in database
  *      description : This api is used to updaet category details in database
@@ -106,36 +105,36 @@ router.post("/new", async (req, res) => {
  *              description : Added Successfully
  *  */
 router.put("/update/", async (req, res) => {
-    let categoryId = req.body.categoryId;
+    let tagId = req.body.tagId;
 
-    Category.findById(categoryId)
-        .then(async category => {
+    Tag.findById(tagId)
+        .then(async tag => {
 
-            let c = await Category.findOne({ name: req.body.name })
+            let c = await Tag.findOne({ name: req.body.name })
 
-            if (c != null && c._id.toString() != category._id.toString()) {
-                return res.send({ success: false, msg: "Category name already exists", document: null })
+            if (c != null && c._id.toString() != tag._id.toString()) {
+                return res.send({ success: false, msg: "Tag name already exists", document: null })
             }
 
-            if (req.body.img) {
-                // await aws.deleteImageFromURL(category.img)
-                category.img = await aws.getImageURL(req.body.img, "Category")
-            }
+            // if (req.body.img) {
+            //     // await aws.deleteImageFromURL(category.img)
+            //     category.img = await aws.getImageURL(req.body.img, "Category")
+            // }
 
-            category.name = req.body.name || category.name
-            category.desc = req.body.desc || category.desc
-            category.status = req.body.status || category.status
+            tag.name = req.body.name || tag.name
+            // category.desc = req.body.desc || category.desc
+            tag.status = req.body.status || tag.status
 
-            category.save()
-                .then(category => { return res.send({ success: true, msg: "Category details updated !", document: category }) })
+            tag.save()
+                .then(tag => { return res.send({ success: true, msg: "Tag details updated !", document: tag }) })
                 .catch(err => { return res.send({ success: false, msg: "Error in Updation", document: err.message }) })
         })
-        .catch(err => { return res.send({ success: false, msg: "Category Does Not Exist !", document: err.message }) })
+        .catch(err => { return res.send({ success: false, msg: "Tag Does Not Exist !", document: err.message }) })
 })
 
 /**
  * @swagger
- * /api/category/update/status/{id}:
+ * /api/tag/update/status/{id}:
  *  put : 
  *      summary : This api is used to change the status of the item
  *      description : This api is used to change the status of the item
@@ -150,23 +149,23 @@ router.put("/update/", async (req, res) => {
  *          200 : 
  *              description : Status Changed
  *  */
-router.put("/update/status/:categoryId", (req, res) => {
-    let categoryId = req.params.categoryId;
-    Category.findById(categoryId)
-        .then(category => {
-            category.status = (category.status == "active") ? "inactive" : "active"
+router.put("/update/status/:tagId", (req, res) => {
+    let tagId = req.params.tagId;
+    Tag.findById(tagId)
+        .then(tag => {
+            tag.status = (tag.status == "active") ? "inactive" : "active"
 
-            category.save()
-                .then(category => { return res.send({ success: true, msg: "Category details updated !", document: category }) })
+            tag.save()
+                .then(tag => { return res.send({ success: true, msg: "Tag details updated !", document: tag }) })
                 .catch(err => { return res.send({ success: false, msg: "Error in Updation", document: err.message }) })
         })
-        .catch(err => { return res.send({ success: false, msg: "Category Does Not Exist !", document: err.message }) })
+        .catch(err => { return res.send({ success: false, msg: "Tag Does Not Exist !", document: err.message }) })
 })
 
 
 /**
  * @swagger
- * /api/category/delete:
+ * /api/tag/delete:
  *  delete : 
  *      summary : This api is used to delete all documents from database.
  *      description : This api is used to delete all documents from database.
@@ -175,20 +174,9 @@ router.put("/update/status/:categoryId", (req, res) => {
  *              description : Deleted Successfully
  *  */
 router.delete("/delete", (req, res) => {
-    Category.deleteMany({})
-        .then(categorys => {
-            Cuisine.deleteMany({})
-                .then(cuisine => {
-                    SubCategory.deleteMany({})
-                        .then(subCategories => {
-                            Item.deleteMany({})
-                                .then(items => { })
-                                .catch(err => { return res.send({ success: false, msg: "Error in Item Deletion !", document: err.message }) })
-                        })
-                        .catch(err => { return res.send({ success: false, msg: "Error in Sub Category Deletion !", document: err.message }) })
-                })
-                .catch(err => { return res.send({ success: false, msg: "Error in Cuisine Deletion !", document: err.message }) })
-            return res.send({ success: true, msg: "Categorys deleted", document: categorys })
+    Tag.deleteMany({})
+        .then(tag => {
+             return res.send({ success: true, msg: "Tags deleted", document: tag })
         })
         .catch(err => { return res.send({ success: false, msg: "Error in Category Deletion !", document: err.message }) })
 })
@@ -196,7 +184,7 @@ router.delete("/delete", (req, res) => {
 
 /**
  * @swagger
- * /api/category/delete/{id}:
+ * /api/tag/delete/{id}:
  *  delete : 
  *      summary : This api is used to delete document with given ID from database.
  *      description : This api is used to delete document with given ID from database.
@@ -211,22 +199,22 @@ router.delete("/delete", (req, res) => {
  *          200 : 
  *              description : Deleted Successfully
  *  */
-router.delete("/delete/:categoryId", (req, res) => {
-    Category.findById(req.params.categoryId)
-        .then(async category => {
+router.delete("/delete/:tagId", (req, res) => {
+    Tag.findById(req.params.tagId)
+        .then(async tag => {
             // deleteCuisineByCategoryId(category._id);
 
             // await aws.deleteImageFromURL(category.img);
-            let result = await category.delete();
+            let result = await tag.delete();
 
             if (result) {
-                res.send({ success: true, msg: "Category Deleted", document: result })
+                res.send({ success: true, msg: "Tag Deleted", document: result })
             }
             else {
                 res.send({ success: false, msg: "Error in deletion", document: null })
             }
         })
-        .catch(err => { res.send({ success: false, msg: "Category Does Not Exist !", document: err.message }) })
+        .catch(err => { res.send({ success: false, msg: "Tag Does Not Exist !", document: err.message }) })
 })
 
 module.exports = router
