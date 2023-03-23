@@ -26,6 +26,8 @@ const Category = require("../schema/category")
  *                      type : integer
  *                  qty : 
  *                      type : integer
+ *                  tags :
+ *                      type : string
  *                  status : 
  *                      type : string
  */
@@ -86,6 +88,7 @@ router.post("/new", async (req, res) => {
         img: imgUrl,
         price: req.body.price,
         qty: req.body.qty,
+        tags: req.body.tags,
         status: req.body.status || process.env.STATUS_INACTIVE
     })
 
@@ -98,7 +101,7 @@ router.post("/new", async (req, res) => {
                     .then(item => { res.send({ success: true, msg: "Item Created !", document: item }) })
                     .catch(err => { return res.send({ success: false, msg: "Error in creation !", document: err.message }) })
             })
-            .catch(err => { return res.send({ success: false, msg: "Sub Category Does Not Exist !", document: err.message }) })
+            .catch(err => { return res.send({ success: false, msg: "Category Does Not Exist !", document: err.message }) })
     }
     else {
         return res.send({ success: false, msg: "Item already exists", document: null })
@@ -147,6 +150,7 @@ router.put("/update/", (req, res) => {
             item.name = req.body.name || item.name
             item.desc = req.body.desc || item.desc
             item.status = req.body.status || item.status
+            item.tags = req.body.tags || item.tags
 
             if (req.body.categoryId) {
                 Category.findById(req.body.categoryId)
