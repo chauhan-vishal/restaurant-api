@@ -1,7 +1,9 @@
 const express = require("express")
 const router = express.Router()
 
+const aws = require("../aws-s3")
 const Item = require("../schema/item")
+const Category = require("../schema/category")
 
 /**
  * @swagger
@@ -12,18 +14,20 @@ const Item = require("../schema/item")
  *              properties :
  *                  itemId:
  *                      type : string
- *                  subCategoryId:
+ *                  categoryId:
  *                      type : string
  *                  name : 
  *                      type : string
  *                  desc : 
  *                      type : string
- *                  status : 
+ *                  img :
  *                      type : string
  *                  price :
  *                      type : integer
  *                  qty : 
  *                      type : integer
+ *                  status : 
+ *                      type : string
  */
 
 /**
@@ -50,9 +54,10 @@ const Item = require("../schema/item")
  *                                      $ref : "#components/schema/Item" 
  * */
 router.get("/", (req, res) => {
-    Item.find({}, { _id: 1, name: 1, desc: 1, price: 1, qty: 1, status: 1 })
+    Item.find({}, { _id: 1, name: 1, desc: 1, price: 1, qty: 1, status: 1, img: 1 })
+        .populate("categoryId", "name")
         .then(item => { return res.send({ success: true, msg: "Data Found", document: item }) })
-        .catch(err => { return res.send({ success: false, msg: "Error !", document: item }) })
+        .catch(err => { return res.send({ success: false, msg: "Error !", document: err.message }) })
 })
 
 /**
@@ -72,18 +77,22 @@ router.get("/", (req, res) => {
  *              description : Added Successfully
  *  */
 router.post("/new", async (req, res) => {
+
+    const imgUrl = await aws.getImageURL(req.body.img, "Item")
+
     let item = new Item({
         name: req.body.name,
         desc: req.body.desc,
-        status: req.body.status || process.env.STATUS_INACTIVE,
+        img: imgUrl,
         price: req.body.price,
-        qty: req.body.qty
+        qty: req.body.qty,
+        status: req.body.status || process.env.STATUS_INACTIVE
     })
 
     if (!await item.exists()) {
-        SubCategory.findById(req.body.subCategoryId)
-            .then(subCategory => {
-                item.subCategoryId = subCategory._id
+        Category.findById(req.body.categoryId)
+            .then(category => {
+                item.categoryId = category._id
 
                 item.save()
                     .then(item => { res.send({ success: true, msg: "Item Created !", document: item }) })
@@ -135,23 +144,57 @@ router.put("/update/", (req, res) => {
                 return res.send({ success: false, msg: "Item name already exists", document: item2 })
             }
 
-            if (req.body.subCategoryId) {
-                SubCategory.findById(req.body.subCategoryId)
-                    .then(subCategory => {
-                        item.subCategoryId = subCategory._id
-                    })
-                    .catch(err => { return res.send({ success: false, msg: "Sub Category does not exist", document: err.message }) })
-            }
-
             item.name = req.body.name || item.name
             item.desc = req.body.desc || item.desc
             item.status = req.body.status || item.status
+
+            if (req.body.categoryId) {
+                Category.findById(req.body.categoryId)
+                    .then(category => {
+                        item.categoryId = category._id
+                    })
+                    .catch(err => { return res.send({ success: false, msg: "Category does not exist", document: err.message }) })
+            }
+
+            if (req.body.img) {
+                // await aws.deleteImageFromURL(item.img)
+                item.img = await aws.getImageURL(req.body.img, "Item")
+            }
 
             item.save()
                 .then(item => { return res.send({ success: true, msg: "Item details updated", document: item }) })
                 .catch(err => { return res.send({ success: false, msg: "Error in Update", document: err.message }) })
         })
         .catch(err => { return res.send({ success: false, msg: "Item does not exist", document: err.message }) })
+})
+
+/**
+ * @swagger
+ * /api/item/update/status/{id}:
+ *  put : 
+ *      summary : This api is used to change the status of the item
+ *      description : This api is used to change the status of the item
+ *      parameters : 
+ *          - in : path
+ *            name : itemId
+ *            required : true
+ *            description : Item ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Status Changed
+ *  */
+router.put("/update/status/:itemId", (req, res) => {
+    Item.findById(req.params.itemId)
+        .then(item => {
+            item.status = (item.status == "active") ? "inactive" : "active"
+
+            item.save()
+                .then(item => { return res.send({ success: true, msg: "Item status changed !", document: item }) })
+                .catch(err => { return res.send({ success: false, msg: "Error in Updation", document: err.message }) })
+        })
+        .catch(err => { return res.send({ success: false, msg: "Item Does Not Exist !", document: err.message }) })
 })
 
 
@@ -203,9 +246,11 @@ router.delete("/delete/:itemId", (req, res) => {
         .catch(err => { return res.send({ success: false, msg: "Item does not exists", document: err.message }) })
 })
 
-async function deleteItemsBySubCategoryId(subCategoryId) {
-    await Item.deleteMany({ subCategoryId: subCategoryId })
+function deleteItemsByCategoryId(categoryId) {
+    Item.deleteOne({ categoryId: categoryId })
+        .then(items => { return res.send({ success: true, msg: "All items deleted for this category", document: items }) })
+        .catch(err => { return res.send({ success: false, msg: "Items does not exist for this category", document: err.message }) })
 }
 
-
 module.exports = router
+module.exports.deleteItemsByCategoryId = deleteItemsByCategoryId

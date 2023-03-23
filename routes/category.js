@@ -5,6 +5,7 @@ const aws = require("../aws-s3")
 
 const Category = require("../schema/category")
 const Cuisine = require("../schema/cuisine")
+const deleteItemsByCategoryId = require("./item").deleteItemsByCategoryId
 
 /**
  * @swagger
@@ -237,13 +238,18 @@ router.delete("/delete/:categoryId", async (req, res) => {
         .catch(err => { return res.send({ success: false, msg: "Category does not exist", document: err.message }) })
 })
 
-// async function deleteSubCategoryByCuisineId(cuisineId) {
-//     let subCategories = await Category.find({ cuisineId: cuisineId })
+function deleteCategoriesByCuisineId(cuisineId) {
+    Category.find({ cuisineId: cuisineId })
+        .then(categories => {
+            categories.map(category => {
+                deleteItemsByCategoryId(category._id)
 
-//     subCategories.forEach(async subCategory => {
-//         subCategory.delete()
-//         await deleteItemsBySubCategoryId(subCategory._id)
-//     });
-// }
+                category.delete()
+            })
+            return res.send({ success: true, msg: "All categories deleted for this cuisine", document: err.message })
+        })
+        .catch(err => { return res.send({ success: false, msg: "Categories does not exist for this Cuisine", document: err.message }) })
+}
 
 module.exports = router
+module.exports.deleteCategoriesByCuisineId = deleteCategoriesByCuisineId

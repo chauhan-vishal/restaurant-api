@@ -3,6 +3,7 @@ const router = express.Router()
 const aws = require("../aws-s3")
 
 const Cuisine = require("../schema/cuisine")
+const deleteCategoriesByCuisineId = require("./category").deleteCategoriesByCuisineId
 /**
  * @swagger
  * components :
@@ -210,7 +211,7 @@ router.delete("/delete/:cuisineId", async (req, res) => {
 
     Cuisine.findById(req.params.cuisineId)
         .then(cuisine => {
-            // deleteSubCategoryByCuisineId(cuisine._id)
+            deleteCategoriesByCuisineId(cuisine._id)
 
             Cuisine.deleteOne({ _id: cuisine._id })
                 .then(result => { return res.send({ success: true, msg: "Cuisine deleted", document: result }) })
