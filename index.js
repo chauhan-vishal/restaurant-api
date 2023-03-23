@@ -38,10 +38,10 @@ const options = {
     },
     apis: [
         './index.js',
-        './routes/tag.js',
         './routes/cuisine.js',
-        './routes/sub-category.js',
+        './routes/category.js',
         './routes/item.js',
+        './routes/tag.js',
         './routes/department.js',
         './routes/employee.js',
         './routes/customer.js',
@@ -61,23 +61,23 @@ app.use((req, res, next) => {
     next()
 })
 
-const auth = require("./middleware/auth");
 // User Authorization for all requests
+const auth = require("./middleware/auth");
 app.use(auth, (req, res, next) => {
     next()
 })
 
-const tag = require("./routes/tag")
-app.use("/api/tag", tag)
-
 const cuisine = require("./routes/cuisine")
 app.use("/api/cuisine", cuisine)
 
-const subCategory = require("./routes/sub-category")
-app.use("/api/sub-category", subCategory)
+const category = require("./routes/category")
+app.use("/api/category", category)
 
 const item = require("./routes/item")
 app.use("/api/item", item)
+
+const tag = require("./routes/tag")
+app.use("/api/tag", tag)
 
 const department = require("./routes/department")
 app.use("/api/department", department)
