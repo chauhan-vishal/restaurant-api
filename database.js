@@ -1,10 +1,8 @@
 const mongoose = require("mongoose")
 
 function connect() {
-    MONGO_URI = "mongodb+srv://admin:admin123@restaurant.uxazovj.mongodb.net/?retryWrites=true&w=majority"
-
     mongoose.set('strictQuery', true);
-    mongoose.connect(MONGO_URI)
+    mongoose.connect(process.env.MONGO_URI)
 
     const db = mongoose.connection
 

@@ -47,8 +47,14 @@ const deleteCategoriesByCuisineId = require("./category").deleteCategoriesByCuis
 router.get("/", (req, res) => {
     Cuisine.find({}, { _id: 1, name: 1, desc: 1, status: 1, img: 1 })
         .sort({ "createdAt": -1 })
-        .then(cuisines => { return res.send({ success: true, msg: "Data Found", document: cuisines }) })
-        .catch(err => { return res.send({ success: false, msg: "Error Occured", document: err.message }) })
+        .then(cuisines => {
+            console.log(cuisines) 
+            return res.send({ success: true, msg: "Data Found", document: cuisines }) 
+        })
+        .catch(err => {
+            console.log(err) 
+            return res.send({ success: false, msg: "Error Occured", document: err.message }) 
+        })
 })
 
 /**

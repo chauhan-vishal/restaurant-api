@@ -1,9 +1,9 @@
+require("dotenv").config();
+
 const bodyParser = require("body-parser")
 const express = require("express")
 const cors = require("cors")
 const app = express()
-
-require("dotenv").config();
 
 app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -32,12 +32,13 @@ const options = {
         },
         servers: [
             {
-                url: "http://localhost:2503/"
+                url: "http://localhost:2503/",
+                url: "http://13.127.244.30:2503/"
             }
         ]
     },
     apis: [
-        './index.js',
+        './app.js',
         './routes/cuisine.js',
         './routes/category.js',
         './routes/item.js',
@@ -116,5 +117,6 @@ app.use("/api/role", role)
  *              description : To test Get method
  */
 app.get("/", (req, res) => {
+    console.log("Hwloo")
     res.send("Welcome !")
 })
