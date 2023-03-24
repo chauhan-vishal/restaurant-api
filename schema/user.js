@@ -6,9 +6,10 @@ const jwt = require("jsonwebtoken")
 const userSchema = mongoose.Schema({
     // name: { type: String, required: true },
     // email: { type: String, required: true },
-    employeeId: { type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true },
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    employeeId: { type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true },
+    roleId: { type: mongoose.Schema.Types.ObjectId, ref: "UserRole", required: true },
     token: { type: String },
     status: { type: String, default: process.env.STATUS_INACTIVE }
 
@@ -25,7 +26,7 @@ userSchema.methods.emailExists = async function () {
 userSchema.methods.setToken = function () {
     const token = jwt.sign(
         { user_id: this._id, email: this.email },
-        process.envS.TOKEN_KEY,
+        process.env.TOKEN_KEY,
         {
             expiresIn: "2h",
         }

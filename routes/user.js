@@ -48,8 +48,9 @@ const User = require("../schema/user")
  *                                      $ref : "#components/schema/User"
  */
 router.get("/", (req, res) => {
-    User.find({}, { name: 1, username: 1, email: 1 })
-    .populate("employeeId")
+    User.find({}, { name: 1, username: 1, roleId: 1 })
+        .populate("employeeId", "name")
+        .populate("roleId", "name")
         .then(users => { return res.send({ success: true, msg: "User data", document: users }) })
         .catch(err => { return res.send({ success: false, msg: "Error occured ! " + err.message, document: null }) })
 })
@@ -74,13 +75,14 @@ router.post("/new", async (req, res) => {
     let user = new User({
         employeeId: req.body.employeeId,
         username: req.body.username,
-        password:req.body.password
+        password: req.body.password,
+        roleId: req.body.roleId
     })
 
     if (!await user.usernameExists()) {
 
-        if (await user.emailExists()) {
-            return res.send({ success: false, msg: "Email already exists", document: null })
+        if (await user.usernameExists()) {
+            return res.send({ success: false, msg: "User already exists", document: null })
         }
 
         await user.setPassword(req.body.password)
