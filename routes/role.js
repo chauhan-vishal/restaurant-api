@@ -67,7 +67,8 @@ router.get("/", (req, res) => {
  *  */
 router.post("/new", async (req, res) => {
 
-    let role = new Role({
+    let role = new      
+    Role({
         name: req.body.name,
         desc: req.body.desc,
         status: (req.body.status == true) ? process.env.STATUS_ACTIVE : process.env.STATUS_INACTIVE
