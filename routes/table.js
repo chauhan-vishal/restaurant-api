@@ -149,13 +149,13 @@ router.put("/update/", async (req, res) => {
  *          200 : 
  *              description : Status Changed
  *  */
-router.put("/update/status/:customerId", (req, res) => {
-    Table.findById(req.params.customerId)
+router.put("/update/status/:tableId", (req, res) => {
+    Table.findById(req.params.tableId)
         .then(table => {
             table.status = (table.status == "active") ? "inactive" : "active"
 
             table.save()
-                .then(category => { return res.send({ success: true, msg: "Table details updated !", document: table }) })
+                .then(table => { return res.send({ success: true, msg: "Table details updated !", document: table }) })
                 .catch(err => { return res.send({ success: false, msg: "Error in Updation", document: err.message }) })
         })
         .catch(err => { return res.send({ success: false, msg: "Table Does Not Exist !", document: err.message }) })
