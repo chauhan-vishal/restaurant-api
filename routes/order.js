@@ -14,8 +14,6 @@ const Order = require("../schema/order")
  *                      type : string
  *                  customerId : 
  *                      type : string
- *                  employeeId : 
- *                      type : string
  *                  tableId : 
  *                      type : string
  *                  items : 
@@ -55,6 +53,8 @@ const Order = require("../schema/order")
  */
 router.get("/", (req, res) => {
     Order.find({}, { __v: 0, createdAt: 0, updatedAt: 0 })
+        .populate("customerId", "name")
+        .populate("tableId", "tableNo")
         .then(orders => { return res.send({ success: true, msg: "Order details found", document: orders }) })
         .catch(err => { return res.send({ success: false, msg: "Erorr Occured", document: err.message }) })
 })
@@ -78,37 +78,34 @@ router.get("/", (req, res) => {
 router.post("/new", async (req, res) => {
     Customer.findById(req.body.customerId)
         .then(customer => {
-            Employee.findById(req.body.employeeId)
-                .then(employee => {
-                    Table.findById(req.body.tableId)
-                        .then(async table => {
+            Table.findById(req.body.tableId)
+                .then(async table => {
 
-                            let orderItems = req.body.items
+                    let orderItems = req.body.items
 
-                            if (orderItems.length < 1) {
-                                return res.send({ success: false, msg: "Order Items cannot be left blank.", document: null })
-                            }
+                    if (orderItems.length < 1) {
+                        return res.send({ success: false, msg: "Order Items cannot be left blank.", document: null })
+                    }
 
-                            if (!(isValidOrder(orderItems))) {
-                                return res.send({ success: false, msg: "Invalid Order Item", document: null })
-                            }
+                    if (!(isValidOrder(orderItems))) {
+                        return res.send({ success: false, msg: "Invalid Order Item", document: null })
+                    }
 
-                            let order = new Order({
-                                "customerId": customer._id,
-                                "employeeId": employee._id,
-                                "tableId": table._id,
-                                "orderDate": new Date(),
-                                "items": orderItems,
-                                "amount": req.body.amount
-                            })
+                    let order = new Order({
+                        "customerId": customer._id,
+                        "tableId": table._id,
+                        "orderDate": new Date(),
+                        "items": orderItems,
+                        "desc": req.body.desc,
+                        "qty": req.body.qty,
+                        "amount": req.body.amount
+                    })
 
-                            order.save()
-                                .then(order => { return res.send({ success: true, msg: "order created", document: order }) })
-                                .catch(err => { return res.send({ success: false, msg: "error occured", document: err.message }) })
-                        })
-                        .catch(err => { return res.send({ success: false, msg: "Table does not exist", document: err.message }) })
+                    order.save()
+                        .then(order => { return res.send({ success: true, msg: "order created", document: order }) })
+                        .catch(err => { return res.send({ success: false, msg: "error occured", document: err.message }) })
                 })
-                .catch(err => { return res.send({ success: false, msg: "Employee does not exist", document: err.message }) })
+                .catch(err => { return res.send({ success: false, msg: "Table does not exist", document: err.message }) })
         })
         .catch(err => { return res.send({ success: false, msg: "Customer does not exist", document: err.message }) })
 })
@@ -156,17 +153,6 @@ router.put("/update", (req, res) => {
                     .catch(err => {
                         update = false;
                         return res.send({ success: false, msg: "Customer does not exist", document: err.message })
-                    })
-            }
-
-            if (req.body.employeeId && update) {
-                await Employee.findById(req.body.employeeId)
-                    .then(employee => {
-                        order.employeeId = employee._id
-                    })
-                    .catch(err => {
-                        update = false;
-                        return res.send({ success: false, msg: "Employee does not exist", document: err.message })
                     })
             }
 
