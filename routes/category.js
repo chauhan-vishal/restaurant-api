@@ -246,9 +246,9 @@ function deleteCategoriesByCuisineId(cuisineId) {
 
                 category.delete()
             })
-            return res.send({ success: true, msg: "All categories deleted for this cuisine", document: err.message })
+            return ({ success: true, msg: "All categories deleted for this cuisine", document: err.message })
         })
-        .catch(err => { return res.send({ success: false, msg: "Categories does not exist for this Cuisine", document: err.message }) })
+        .catch(err => { return ({ success: false, msg: "Categories does not exist for this Cuisine", document: err.message }) })
 }
 
 module.exports = router

@@ -241,19 +241,19 @@ router.delete("/delete/:itemId", (req, res) => {
         .then(async item => {
             let result = await item.delete()
             if (result) {
-                return res.send({ success: true, msg: "Item deleted", document: result })
+                return ({ success: true, msg: "Item deleted", document: result })
             }
             else {
-                return res.send({ success: false, msg: "Error in deletion", document: result })
+                return ({ success: false, msg: "Error in deletion", document: result })
             }
         })
-        .catch(err => { return res.send({ success: false, msg: "Item does not exists", document: err.message }) })
+        .catch(err => { return ({ success: false, msg: "Item does not exists", document: err.message }) })
 })
 
 function deleteItemsByCategoryId(categoryId) {
     Item.deleteOne({ categoryId: categoryId })
-        .then(items => { return res.send({ success: true, msg: "All items deleted for this category", document: items }) })
-        .catch(err => { return res.send({ success: false, msg: "Items does not exist for this category", document: err.message }) })
+        .then(items => { return ({ success: true, msg: "All items deleted for this category", document: items }) })
+        .catch(err => { return ({ success: false, msg: "Items does not exist for this category", document: err.message }) })
 }
 
 module.exports = router

@@ -32,8 +32,16 @@ const options = {
         },
         servers: [
             {
-                url: "http://localhost:2503/",
+                url: "http://localhost:2503/"
+            },
+            {
                 url: "http://13.127.244.30:2503/"
+            },
+            {
+                url: "http://13.127.112.248:2503/"
+            },
+            {
+                url: "http://restaurantapibeanstalk-env.eba-vphu7rqd.ap-south-1.elasticbeanstalk.com/  "
             }
         ]
     },

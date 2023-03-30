@@ -173,13 +173,15 @@ router.post("/login", (req, res) => {
     let username = req.body.username
     let password = req.body.password
 
+    console.log(req.body)
+
     User.findOne({ username: username })
         .then(async user => {
             if (await user.validPassword(password)) {
                 user.setToken()
                 user.save()
 
-                return res.send({ success: true, msg: "Login Successfull !", document: user })
+                return res.send({ success: true, msg: "Login Successfull !", document: { token: user.token } })
             }
             else {
                 return res.send({ success: false, msg: "Invalid credential !", document: null })
