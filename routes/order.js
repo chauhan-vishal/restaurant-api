@@ -2,6 +2,10 @@ const express = require("express")
 const router = express.Router()
 
 const Order = require("../schema/order")
+const Customer = require("../schema/customer")
+const Item = require("../schema/item")
+const Table = require("../schema/table")
+
 
 /**
  * @swagger
@@ -53,7 +57,7 @@ const Order = require("../schema/order")
  */
 router.get("/", (req, res) => {
     Order.find({}, { __v: 0, createdAt: 0, updatedAt: 0 })
-        .populate("customerId", "name")
+        .populate("customerId", "name contact")
         .populate("tableId", "tableNo")
         .then(orders => { return res.send({ success: true, msg: "Order details found", document: orders }) })
         .catch(err => { return res.send({ success: false, msg: "Erorr Occured", document: err.message }) })
@@ -81,15 +85,15 @@ router.post("/new", async (req, res) => {
             Table.findById(req.body.tableId)
                 .then(async table => {
 
-                    let orderItems = req.body.items
+                    let orderItems = req.body.itemId
 
-                    if (orderItems.length < 1) {
-                        return res.send({ success: false, msg: "Order Items cannot be left blank.", document: null })
-                    }
+                    // if (orderItems.length < 1) {
+                    //     return res.send({ success: false, msg: "Order Items cannot be left blank.", document: null })
+                    // }
 
-                    if (!(isValidOrder(orderItems))) {
-                        return res.send({ success: false, msg: "Invalid Order Item", document: null })
-                    }
+                    // if (!(isValidOrder(orderItems))) {
+                    //     return res.send({ success: false, msg: "Invalid Order Item", document: null })
+                    // }
 
                     let order = new Order({
                         "customerId": customer._id,

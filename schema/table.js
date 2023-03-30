@@ -16,6 +16,6 @@ tableSchema.methods.delete = async function () {
     return await Table.deleteOne({ _id: this._id })
 }
 
-const Table = mongoose.model("table", tableSchema)
+const Table = mongoose.model("Table", tableSchema)
 
 module.exports = Table   
