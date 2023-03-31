@@ -110,7 +110,7 @@ const payment = require("./routes/payment");
 const Tag = require("./schema/tag");
 app.use("/api/payment", payment)
 
-const role = require("./routes/role")
+const role = require("./routes/role");
 app.use("/api/role", role)
 
 
@@ -127,4 +127,40 @@ app.use("/api/role", role)
 app.get("/", (req, res) => {
     console.log("Hwloo")
     res.send("Welcome !")
+})
+
+
+const Cuisine = require("./schema/cuisine");
+const Category = require("./schema/category");
+const Item = require("./schema/item");
+const Department = require("./schema/department");
+const Employee = require("./schema/employee");
+const Customer = require("./schema/customer");
+const UserRole = require("./schema/userrole");
+const Table = require("./schema/table");
+const User = require("./schema/user");
+/**
+ * @swagger
+ * /get-count:
+ *  get :
+ *      summary: This api is used to check if get method is working or not
+ *      description: This api is used to check if get method is working or not
+ *      responses:
+ *          200:
+ *              description : To test Get method
+ */
+app.get("/get-count", async (req, res) => {
+    const counts = {
+        "cuisines": await Cuisine.count(),
+        "categories": await Category.count(),
+        "items": await Item.count(),
+        "tags": await Tag.count(),
+        "departments": await Department.count(),
+        "employees": await Employee.count(),
+        "customers": await Customer.count(),
+        "roles": await UserRole.count(),
+        "tables": await Table.count(),
+        "users": await User.count(),
+    }
+    res.send({success : true, counts : counts})
 })

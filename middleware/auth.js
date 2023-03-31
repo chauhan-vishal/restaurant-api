@@ -3,7 +3,8 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const verifyToken = (req, res, next) => {
-    if (req.url == "/api/user/login" || req.url == "/" || req.url == "/api-docs") {
+
+    if (req.url == "/api/user/login" || req.url == "/" || req.url == "/api-docs" || req.url == "/get-count") {
         return next()
     }
 
