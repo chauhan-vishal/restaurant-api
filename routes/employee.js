@@ -46,6 +46,10 @@ const Department = require("../schema/department")
  *                      type : string
  *                  bonus :
  *                      type : string
+ *                  img : 
+ *                      type : string
+ *                  status : 
+ *                      type : string
  */
 
 /**

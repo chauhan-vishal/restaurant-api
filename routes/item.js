@@ -56,8 +56,10 @@ const Category = require("../schema/category")
  *                                      $ref : "#components/schema/Item" 
  * */
 router.get("/", (req, res) => {
-    Item.find({}, { _id: 1, name: 1, desc: 1, price: 1, qty: 1, status: 1, img: 1 })
+    Item.find({}, { _id: 1, name: 1, desc: 1, price: 1, qty: 1, status: 1, img: 1, tags: 1 })
         .populate("categoryId", "name")
+        .populate("tags", "name")
+        .sort({ "createdAt": -1 })
         .then(item => { return res.send({ success: true, msg: "Data Found", document: item }) })
         .catch(err => { return res.send({ success: false, msg: "Error !", document: err.message }) })
 })
@@ -80,6 +82,10 @@ router.get("/", (req, res) => {
  *  */
 router.post("/new", async (req, res) => {
 
+    if (!req.body.img) {
+        return res.send({ success: false, msg: "Please upload an Image", document: null })
+    }
+
     const imgUrl = await aws.getImageURL(req.body.img, "Item")
 
     let item = new Item({
@@ -91,6 +97,8 @@ router.post("/new", async (req, res) => {
         tags: req.body.tags,
         status: req.body.status || process.env.STATUS_INACTIVE
     })
+
+    console.log(req.body.tags);
 
     if (!await item.exists()) {
         Category.findById(req.body.categoryId)
@@ -241,13 +249,13 @@ router.delete("/delete/:itemId", (req, res) => {
         .then(async item => {
             let result = await item.delete()
             if (result) {
-                return ({ success: true, msg: "Item deleted", document: result })
+                return res.send({ success: true, msg: "Item deleted", document: result })
             }
             else {
-                return ({ success: false, msg: "Error in deletion", document: result })
+                return res.send({ success: false, msg: "Error in deletion", document: result })
             }
         })
-        .catch(err => { return ({ success: false, msg: "Item does not exists", document: err.message }) })
+        .catch(err => { return res.send({ success: false, msg: "Item does not exists", document: err.message }) })
 })
 
 function deleteItemsByCategoryId(categoryId) {

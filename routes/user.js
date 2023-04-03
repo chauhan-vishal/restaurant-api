@@ -10,18 +10,20 @@ const User = require("../schema/user")
 *          User:
 *              type : object
 *              properties :
-*                  name : 
-*                      type : string
-*                      required : true
-*                  email : 
-*                      type : string
-*                      required : true
 *                  username : 
 *                      type : string
 *                      required : true
 *                  password : 
 *                      type : string
 *                      required : true
+*                  employeeId :
+*                      type : string
+*                  roleId:
+*                      type : string
+*                  status:
+*                      type : string
+*                  token:
+*                      type : string
 */
 
 /**
@@ -173,13 +175,13 @@ router.post("/login", (req, res) => {
     let username = req.body.username
     let password = req.body.password
 
-    console.log(req.body)
-
     User.findOne({ username: username })
         .then(async user => {
             if (await user.validPassword(password)) {
+                console.log(user.token)
                 user.setToken()
                 user.save()
+                console.log(user.token)
 
                 return res.send({ success: true, msg: "Login Successfull !", document: { token: user.token } })
             }
@@ -187,7 +189,7 @@ router.post("/login", (req, res) => {
                 return res.send({ success: false, msg: "Invalid credential !", document: null })
             }
         })
-        .catch(err => { return res.send({ success: false, msg: "User doesn't exist ! " + err.message, document: null }) })
+        .catch(err => { return res.send({ success: false, msg: "User doesn't exist ! " + err.message, document: err.message }) })
 })
 
 module.exports = router

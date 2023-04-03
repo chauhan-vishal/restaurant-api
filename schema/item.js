@@ -7,7 +7,7 @@ const itemSchema = mongoose.Schema({
     categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
     price: { type: Number, required: true },
     qty: { type: Number, required: true },
-    tags: [mongoose.Schema.Types.ObjectId],
+    tags: { type: [mongoose.Schema.Types.ObjectId], ref: "Tag" },
     status: { type: String, default: process.env.STATUS_INACTIVE }
 }, {
     timestamps: true

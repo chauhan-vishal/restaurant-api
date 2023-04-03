@@ -3,8 +3,9 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const verifyToken = (req, res, next) => {
+    // return next()
 
-    if (req.url == "/api/user/login" || req.url == "/" || req.url == "/api-docs" || req.url == "/get-count") {
+    if (req.url == "/api/user/login" || req.url == "/api/user/new" || req.url == "/" || req.url == "/api-docs" || req.url == "/get-count") {
         return next()
     }
 
@@ -18,6 +19,7 @@ const verifyToken = (req, res, next) => {
         const decoded = jwt.verify(token, process.env.TOKEN_KEY);
         req.user = decoded;
     } catch (err) {
+        console.log("Invalid Token")
         return res.status(401).send({ success: false, msg: "Invalid Token" });
     }
 

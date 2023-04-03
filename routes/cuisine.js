@@ -217,7 +217,7 @@ router.delete("/delete/:cuisineId", async (req, res) => {
 
     Cuisine.findById(req.params.cuisineId)
         .then(async cuisine => {
-            await aws.deleteImageFromURL(cuisine.img)
+            // await aws.deleteImageFromURL(cuisine.img)
             deleteCategoriesByCuisineId(cuisine._id)
 
             Cuisine.deleteOne({ _id: cuisine._id })

@@ -4,16 +4,12 @@ const mongoose = require("mongoose")
 const jwt = require("jsonwebtoken")
 
 const userSchema = mongoose.Schema({
-    // name: { type: String, required: true },
-    // email: { type: String, required: true },
-    
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     employeeId: { type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true },
     roleId: { type: mongoose.Schema.Types.ObjectId, ref: "UserRole", required: true },
     token: { type: String },
     status: { type: String, default: process.env.STATUS_INACTIVE }
-
 })
 
 userSchema.methods.usernameExists = async function () {

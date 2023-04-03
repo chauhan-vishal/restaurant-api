@@ -60,7 +60,7 @@ router.get("/", (req, res) => {
  *          content : 
  *              application/json :
  *                  schema : 
- *                      $ref : "#components/schema/role"
+ *                      $ref : "#components/schema/Role"
  *      responses :
  *          200 : 
  *              description : Added Successfully
