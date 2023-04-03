@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-elasticsearch-service": "^3.303.0",
     "aws-sdk": "^2.1335.0",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
