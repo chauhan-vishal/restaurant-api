@@ -1,7 +1,11 @@
 const express = require("express")
 const router = express.Router()
+const qr = require("qrcode")
+const fs = require("fs")
 
 const Table = require("../schema/table")
+const aws = require("../aws-s3")
+
 
 /**
  * @swagger
@@ -15,6 +19,8 @@ const Table = require("../schema/table")
  *                  tableNo : 
  *                      type : string
  *                  noOfSeat : 
+ *                      type : string
+ *                  img  : 
  *                      type : string
  *                  status :
  *                      type : string
@@ -71,15 +77,59 @@ router.post("/new", async (req, res) => {
         noOfSeat: Number(req.body.noOfSeat),
         status: req.body.status || process.env.STATUS_INACTIVE,
     })
+    //const imgUrl = await aws.getImageURL(req.body.img, "TableQR")
+    const size = 300
+
 
     if (!await table.exists()) {
-        table.save()
-            .then(table => { return res.send({ success: true, msg: "Table created", document: table }) })
-            .catch(err => { return res.send({ success: false, msg: "Error in creation!", document: err.message }) })
-    } else {
+        const qrData = "http://restaurent-env.eba-dmmzmjrn.ap-south-1.elasticbeanstalk.com/?tableNo=" + table.tableNo
+
+        // let qrString = JSON.stringify(qrData);
+
+        const result = await qr.toDataURL(qrData, { width: size })
+
+        const imgUrl = await aws.getImageURL(result, "QR")
+
+        table.img = imgUrl
+
+        await table.save()
+
+        return res.send({ success: true, msg: "Table created", document: table })
+    }
+    else {
         return res.send({ success: false, msg: "Table number already exists !", document: null })
     }
+
+    //  (err) => {
+    //     if(err) throw err;
+    //     return console.log("Error")
+    // });
+    // const imgUrl = await aws.getImageURL(req.body.img, "Table")
+    // const fileContent = fs.readFileSync('./qr.png');
+    // const params = aws.getImageURL(qr, "qr") 
+    // aws.upload(params, (err, data) => {
+    //     if (err) throw err;
+    //     console.log(`QR code uploaded successfully to ${data.Location}`);
+    //   });
+    // exports.handler = async (event) => {
+    //     QRCode.toDataURL(table.str, function (err, base64) {
+    //         const base64Data = new Buffer.from(base64.replace(/^data:image\/\w+;base64,/, ""), 'base64');
+    //         const type = base64.split(';')[0].split('/')[1];
+    //         const image_name = Date.now() + "-" + Math.floor(Math.random() * 1000);
+    //         const params = aws.getImageURL(qrcode, "qr")
+    //         aws.upload(params, function (err, data) {
+    //             if (err) {
+    //                 console.log('ERROR MSG: ', err);
+    //             } else {
+    //                 console.log('Successfully uploaded data');
+    //             }
+    //         });
+    //     }
+    //     )
+    // };
+
 })
+
 
 /**
  * @swagger
