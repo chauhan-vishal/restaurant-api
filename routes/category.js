@@ -52,7 +52,15 @@ const deleteItemsByCategoryId = require("./item").deleteItemsByCategoryId
  *                                      $ref : "#components/schema/Category" 
  * */
 router.get("/", (req, res) => {
-    Category.find({}, { _id: 1, name: 1, desc: 1, status: 1, img: 1 })
+    const { categoryName } = req.query
+    let filter = {}
+
+    if (categoryName) {
+        const regex = new RegExp(categoryName, "i")
+        filter = { name: regex }
+    }
+
+    Category.find(filter, { _id: 1, name: 1, desc: 1, status: 1, img: 1 })
         .populate("cuisineId", "name")
         .then(categories => { return res.send({ success: true, msg: "Data Found", document: categories }) })
         .catch(err => { return res.send({ success: false, msg: "Error Occured", document: err.message }) })

@@ -55,8 +55,21 @@ const Category = require("../schema/category")
  *                                  items :
  *                                      $ref : "#components/schema/Item" 
  * */
-router.get("/", (req, res) => {
-    Item.find({}, { _id: 1, name: 1, desc: 1, price: 1, qty: 1, status: 1, img: 1, tags: 1 })
+router.get("/", async (req, res) => {
+    const { categoryName, itemName } = req.query
+    let filter = {}
+
+    if (categoryName) {
+        const category = await Category.findOne({ name: categoryName })
+        filter["categoryId"] = category._id
+    }
+
+    if (itemName) {
+        const regex = new RegExp(itemName, "i")
+        filter["name"] = regex
+    }
+
+    Item.find(filter, { _id: 1, name: 1, desc: 1, price: 1, qty: 1, status: 1, img: 1, tags: 1 })
         .populate("categoryId", "name")
         .populate("tags", "name")
         .sort({ "createdAt": -1 })
