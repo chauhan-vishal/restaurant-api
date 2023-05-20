@@ -1,8 +1,7 @@
-const mongoose = require("mongoose")
-
 const tableSchema = mongoose.Schema({
     tableNo: { type: Number, required: true },
     noOfSeat: { type: Number, required: true },
+    img: { type: String, required: true },
     status: { type: String, default: process.env.STATUS_INACTIVE }
 }, {
     timestamps: true
