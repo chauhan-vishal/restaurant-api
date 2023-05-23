@@ -6,7 +6,8 @@ const orderSchema = mongoose.Schema({
     orderDate: { type: Date, required: true },
     items: { type: Array, required: true },
     desc: String,
-    qty:Number,
+    qty: Number,
+    orderStatus: String,
     amount: { type: Number, required: true }
 }, {
     timestamps: true

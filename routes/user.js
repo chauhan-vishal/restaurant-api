@@ -2,6 +2,7 @@ const express = require("express")
 const router = express.Router()
 
 const User = require("../schema/user")
+const UserRole = require("../schema/userrole")
 
 /**
 * @swagger
@@ -50,7 +51,7 @@ const User = require("../schema/user")
  *                                      $ref : "#components/schema/User"
  */
 router.get("/", (req, res) => {
-    User.find({}, { name: 1, username: 1, roleId: 1 })
+    User.find({}, { name: 1, username: 1, roleId: 1, status: 1 })
         .populate("employeeId", "name")
         .populate("roleId", "name")
         .then(users => { return res.send({ success: true, msg: "User data", document: users }) })
@@ -78,7 +79,8 @@ router.post("/new", async (req, res) => {
         employeeId: req.body.employeeId,
         username: req.body.username,
         password: req.body.password,
-        roleId: req.body.roleId
+        roleId: req.body.roleId,
+        status: req.body.status
     })
 
     if (!await user.usernameExists()) {
@@ -172,24 +174,53 @@ router.delete("/delete/:userId", (req, res) => {
  *              description : Deleted Successfully
  *  */
 router.post("/login", (req, res) => {
+    let role = req.body.role
     let username = req.body.username
     let password = req.body.password
 
     User.findOne({ username: username })
         .then(async user => {
-            if (await user.validPassword(password)) {
-                console.log(user.token)
-                user.setToken()
-                user.save()
-                console.log(user.token)
-
-                return res.send({ success: true, msg: "Login Successfull !", document: { token: user.token } })
-            }
-            else {
+            const roleExist = await UserRole.findOne({ name: role })
+            if (!roleExist || roleExist._id.toString() != user.roleId.toString() || !await user.validPassword(password)) {
                 return res.send({ success: false, msg: "Invalid credential !", document: null })
             }
+
+            user.setToken(role.replace(" ", ""))
+            user.save()
+
+            return res.send({ success: true, msg: "Login Successfull !", document: { role: role, token: user.token } })
         })
-        .catch(err => { return res.send({ success: false, msg: "User doesn't exist ! " + err.message, document: err.message }) })
+        .catch(err => { console.log(err); return res.send({ success: false, msg: "User doesn't exist ! " + err.message, document: err.message }) })
+})
+
+
+/**
+ * @swagger
+ * /api/user/update/status/{id}:
+ *  put : 
+ *      summary : This api is used to change the status of the item
+ *      description : This api is used to change the status of the item
+ *      parameters : 
+ *          - in : path
+ *            name : departmentId
+ *            required : true
+ *            description : User ID required
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Status Changed
+ *  */
+router.put("/update/status/:userId", (req, res) => {
+    User.findById(req.params.userId)
+        .then(user => {
+            user.status = (user.status == "active") ? "inactive" : "active"
+
+            user.save()
+                .then(user => { return res.send({ success: true, msg: "User details updated !", document: user }) })
+                .catch(err => { return res.send({ success: false, msg: "Error in Updation", document: err.message }) })
+        })
+        .catch(err => { return res.send({ success: false, msg: "user Does Not Exist !", document: err.message }) })
 })
 
 module.exports = router

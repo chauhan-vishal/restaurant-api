@@ -20,9 +20,9 @@ userSchema.methods.emailExists = async function () {
     return await User.count({ email: this.email }) == 1
 }
 
-userSchema.methods.setToken = function () {
+userSchema.methods.setToken = function (role) {
     const token = jwt.sign(
-        { user_id: this._id, email: this.email },
+        { role: role, user_id: this._id, email: this.email },
         process.env.TOKEN_KEY,
         {
             expiresIn: "2h",

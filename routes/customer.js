@@ -77,10 +77,7 @@ router.get("/", (req, res) => {
  *  */
 router.post("/new", async (req, res) => {
     let customer = new Customer({
-        name: {
-            first: req.body.first,
-            last: req.body.last
-        },
+        name: req.body.name,
         email: req.body.email,
         contact: req.body.contact,
         gender: req.body.gender,
@@ -91,9 +88,11 @@ router.post("/new", async (req, res) => {
         status: req.body.status || process.env.STATUS_INACTIVE,
     })
 
+    await customer.setPassword(req.body.password)
+
     if (!await customer.exists()) {
         customer.save()
-            .then(customer => { return res.send({ success: true, msg: "Customer added", document: customer }) })
+            .then(customer => { return res.send({ success: true, msg: "Customer Registered!", document: customer }) })
             .catch(err => { return res.send({ success: false, msg: "Error in creation!", document: err.message }) })
     } else {
         return res.send({ success: false, msg: "Customer already exists !", document: null })
@@ -139,8 +138,7 @@ router.put("/update", (req, res) => {
                 return res.send({ success: false, msg: "Email already exists", document: null })
             }
 
-            customer.name.set("first", req.body.first || customer.name.get("first"))
-            customer.name.set("last", req.body.last || customer.name.get("last"))
+            customer.name = req.body.name || customer.name
             customer.email = req.body.email || customer.email
             customer.contact = req.body.contact || customer.contact
             customer.gender = req.body.gender || customer.gender
@@ -231,6 +229,56 @@ router.delete("/delete/:customerId", (req, res) => {
             }
         })
         .catch(err => { return res.send({ success: false, msg: "Customer Does Not Exist !", document: err.message }) })
+})
+
+
+/**
+ * @swagger
+ * /api/customer/login:
+ *  post : 
+ *      summary : This api is used to log in customer with ID & Password.
+ *      description : This api is used to log in customer with ID & Password.
+ *      requestBody:
+ *          required : true
+ *          content :
+ *              application/json:
+ *                  schema :
+ *                      type : object
+ *                      properties :
+ *                          email : 
+ *                              type : string
+ *                              required : true
+ *                          password :  
+ *                              type : string
+ *                              required : true
+ *                          token :  
+ *                              type : string
+ *      responses :
+ *          200 : 
+ *              description : Deleted Successfully
+ *  */
+router.post("/login", (req, res) => {
+    let { email, password } = req.body
+
+    Customer.findOne({ email: email })
+        .then(async customer => {
+            if (customer.status == process.env.STATUS_INACTIVE) {
+                return res.send({ success: false, msg: "Access Denied !", document: null })
+            }
+            if (await customer.validPassword(password)) {
+                // console.log(customer.token)
+                // customer.setToken()
+                // customer.save()
+                // console.log(customer.token)
+                const token = customer.setToken()
+
+                return res.send({ success: true, msg: "Login Successfull !", document: customer, token })
+            }
+            else {
+                return res.send({ success: false, msg: "Invalid credential !", document: null })
+            }
+        })
+        .catch(err => { return res.send({ success: false, msg: "customer doesn't exist ! " + err.message, document: err.message }) })
 })
 
 module.exports = router

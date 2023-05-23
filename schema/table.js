@@ -1,3 +1,5 @@
+const mongoose = require("mongoose")
+
 const tableSchema = mongoose.Schema({
     tableNo: { type: Number, required: true },
     noOfSeat: { type: Number, required: true },

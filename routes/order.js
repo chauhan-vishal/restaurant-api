@@ -80,12 +80,12 @@ router.get("/", (req, res) => {
  *              description : Added Successfully       
  */
 router.post("/new", async (req, res) => {
-    Customer.findById(req.body.customerId)
+    Customer.findOne({ email: req.body.email })
         .then(customer => {
-            Table.findById(req.body.tableId)
+            Table.findOne({ tableNo: req.body.tableNo })
                 .then(async table => {
 
-                    let orderItems = req.body.itemId
+                    let orderItems = req.body.items
 
                     // if (orderItems.length < 1) {
                     //     return res.send({ success: false, msg: "Order Items cannot be left blank.", document: null })
@@ -102,11 +102,12 @@ router.post("/new", async (req, res) => {
                         "items": orderItems,
                         "desc": req.body.desc,
                         "qty": req.body.qty,
-                        "amount": req.body.amount
+                        "amount": req.body.amount,
+                        "orderStatus": "ordered"
                     })
 
                     order.save()
-                        .then(order => { return res.send({ success: true, msg: "order created", document: order }) })
+                        .then(order => { return res.send({ success: true, msg: "Order Placed!", document: order }) })
                         .catch(err => { return res.send({ success: false, msg: "error occured", document: err.message }) })
                 })
                 .catch(err => { return res.send({ success: false, msg: "Table does not exist", document: err.message }) })
@@ -242,7 +243,7 @@ router.delete("/delete/:orderId", (req, res) => {
         .then(async order => {
             let result = await order.delete()
             if (result) {
-                return res.send({ success: false, msg: "Order deleted", document: result })
+                return res.send({ success: true, msg: "Order deleted", document: result })
             }
             else {
                 return res.send({ success: false, msg: "Error occured ! " + err.message, document: result })
@@ -250,5 +251,43 @@ router.delete("/delete/:orderId", (req, res) => {
         })
         .catch(err => { return res.send({ success: false, msg: "Order not found ! " + err.message, document: null }) })
 })
+
+
+/**
+ * @swagger
+ * /api/order/update/status/{orderId}/{status}:
+ *  put : 
+ *      summary : This api is used to change the status of the item
+ *      description : This api is used to change the status of the item
+ *      parameters : 
+ *          - in : path
+ *            name : orderId
+ *            required : true
+ *            description : Order ID required
+ *            schema : 
+ *              type : string
+ *          - in : path
+ *            name : status
+ *            required : true
+ *            description : Order Status
+ *            schema : 
+ *              type : string
+ *      responses :
+ *          200 : 
+ *              description : Status Changed
+ *  */
+router.put("/update/status/:orderId/:status", (req, res) => {
+    console.log(req.params.status)
+    Order.findById(req.params.orderId)
+        .then(order => {
+            order.orderStatus = req.params.status
+
+            order.save()
+                .then(order => { return res.send({ success: true, msg: "Order Status Updated !", document: order }) })
+                .catch(err => { return res.send({ success: false, msg: "Error in Updation", document: err.message }) })
+        })
+        .catch(err => { return res.send({ success: false, msg: "order Does Not Exist !", document: err.message }) })
+})
+
 
 module.exports = router

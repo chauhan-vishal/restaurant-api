@@ -139,6 +139,7 @@ const Customer = require("./schema/customer");
 const UserRole = require("./schema/userrole");
 const Table = require("./schema/table");
 const User = require("./schema/user");
+const Order = require("./schema/order");
 /**
  * @swagger
  * /get-count:
@@ -161,6 +162,8 @@ app.get("/get-count", async (req, res) => {
         "roles": await UserRole.count(),
         "tables": await Table.count(),
         "users": await User.count(),
+        "orders": await Order.count(),
+        "kiosk": await Order.count(),
     }
     res.send({success : true, counts : counts})
 })

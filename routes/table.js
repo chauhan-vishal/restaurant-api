@@ -51,6 +51,7 @@ const aws = require("../aws-s3")
  * */
 router.get("/", (req, res) => {
     Table.find({}, { __v: 0, createdAt: 0, updatedAt: 0 })
+        .sort({ tableNo: 1 })
         .then(table => { return res.send({ success: true, msg: "Data Found", document: table }) })
         .catch(err => { return res.send({ success: false, msg: "Error Occured", document: err.message }) })
 })
@@ -77,14 +78,10 @@ router.post("/new", async (req, res) => {
         noOfSeat: Number(req.body.noOfSeat),
         status: req.body.status || process.env.STATUS_INACTIVE,
     })
-    //const imgUrl = await aws.getImageURL(req.body.img, "TableQR")
     const size = 300
-
 
     if (!await table.exists()) {
         const qrData = "http://restaurent-env.eba-dmmzmjrn.ap-south-1.elasticbeanstalk.com/?tableNo=" + table.tableNo
-
-        // let qrString = JSON.stringify(qrData);
 
         const result = await qr.toDataURL(qrData, { width: size })
 
@@ -99,35 +96,6 @@ router.post("/new", async (req, res) => {
     else {
         return res.send({ success: false, msg: "Table number already exists !", document: null })
     }
-
-    //  (err) => {
-    //     if(err) throw err;
-    //     return console.log("Error")
-    // });
-    // const imgUrl = await aws.getImageURL(req.body.img, "Table")
-    // const fileContent = fs.readFileSync('./qr.png');
-    // const params = aws.getImageURL(qr, "qr") 
-    // aws.upload(params, (err, data) => {
-    //     if (err) throw err;
-    //     console.log(`QR code uploaded successfully to ${data.Location}`);
-    //   });
-    // exports.handler = async (event) => {
-    //     QRCode.toDataURL(table.str, function (err, base64) {
-    //         const base64Data = new Buffer.from(base64.replace(/^data:image\/\w+;base64,/, ""), 'base64');
-    //         const type = base64.split(';')[0].split('/')[1];
-    //         const image_name = Date.now() + "-" + Math.floor(Math.random() * 1000);
-    //         const params = aws.getImageURL(qrcode, "qr")
-    //         aws.upload(params, function (err, data) {
-    //             if (err) {
-    //                 console.log('ERROR MSG: ', err);
-    //             } else {
-    //                 console.log('Successfully uploaded data');
-    //             }
-    //         });
-    //     }
-    //     )
-    // };
-
 })
 
 
